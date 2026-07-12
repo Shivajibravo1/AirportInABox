@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Airport in a Box — MindGraph Solutions</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f8f9fc;--bg2:#ffffff;--panel:#ffffff;
+  --blue:#0f62fe;--blue2:#0043ce;--blue3:#e8f0fe;
+  --teal:#0e9e8e;--teal2:#d0f0ed;
+  --amber:#c96a00;--amber2:#fff3e0;
+  --red:#da1e28;--red2:#ffd7d9;
+  --green:#198038;--green2:#defbe6;
+  --purple:#6929c4;--purple2:#e8daff;
+  --gray1:#f4f4f4;--gray2:#e0e3e8;--gray3:#a8b0bd;--gray4:#525d6e;--gray5:#21272a;
+  --text:#21272a;--text2:#525d6e;--text3:#a8b0bd;
+  --border:#e0e3e8;--border2:#c1c7cd;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04);
+  --shadow2:0 2px 8px rgba(0,0,0,.1),0 8px 32px rgba(0,0,0,.06);
+  --r:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5}
+#particles-canvas{position:fixed;inset:0;pointer-events:none;opacity:.4;z-index:0}
+.section{position:absolute;inset:0;display:none;opacity:0;transition:opacity .4s ease;z-index:1}
+.section.active{display:flex;opacity:1}
+/* INTRO */
+#intro{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:28px;background:linear-gradient(160deg,#ffffff 0%,#eef2fb 60%,#e3eeff 100%)}
+.intro-eyebrow{font-size:11px;font-weight:600;color:var(--blue);letter-spacing:3px;text-transform:uppercase;opacity:0;animation:fadeUp .6s .2s ease both}
+.intro-wordmark{display:flex;align-items:center;gap:14px;opacity:0;animation:fadeUp .6s .4s ease both}
+.intro-dot{width:10px;height:10px;border-radius:50%;background:var(--blue)}
+.intro-logo-text{font-size:13px;font-weight:600;color:var(--text2);letter-spacing:1px}
+.intro-headline{font-family:'DM Sans',sans-serif;font-size:clamp(32px,5vw,64px);font-weight:700;color:var(--text);line-height:1.08;letter-spacing:-1.5px;opacity:0;animation:fadeUp .7s .5s ease both}
+.intro-headline .accent{color:var(--blue)}
+.intro-tagline{font-size:16px;color:var(--text2);max-width:520px;opacity:0;animation:fadeUp .6s .7s ease both}
+.intro-divider{width:48px;height:3px;background:var(--blue);border-radius:2px;opacity:0;animation:fadeUp .5s .9s ease both}
+.intro-metrics{display:flex;gap:0;opacity:0;animation:fadeUp .6s 1s ease both;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:white;box-shadow:var(--shadow)}
+.imet{padding:18px 32px;text-align:center;border-right:1px solid var(--border)}
+.imet:last-child{border-right:none}
+.imet-num{font-family:'DM Sans',sans-serif;font-size:30px;font-weight:700;color:var(--blue);line-height:1}
+.imet-lbl{font-size:11px;color:var(--text3);font-weight:500;margin-top:3px}
+.intro-btn{padding:14px 36px;background:var(--blue);color:white;border:none;border-radius:var(--r);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;opacity:0;animation:fadeUp .6s 1.2s ease both;box-shadow:0 2px 8px rgba(15,98,254,.3)}
+.intro-btn:hover{background:var(--blue2);transform:translateY(-1px)}
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(255,255,255,.96);border-bottom:1px solid var(--border);display:none;align-items:center;padding:0 24px;z-index:1000;backdrop-filter:blur(12px)}
+#nav.visible{display:flex}
+.nav-brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.nav-brand-dot{width:8px;height:8px;background:var(--blue);border-radius:50%}
+.nav-brand-name{font-size:13px;font-weight:700;color:var(--text)}
+.nav-brand-sub{font-size:11px;color:var(--text3);margin-left:4px}
+.nav-btn{padding:6px 14px;font-size:12px;font-weight:500;background:transparent;border:none;color:var(--text2);cursor:pointer;transition:all .15s;border-radius:6px}
+.nav-btn:hover{background:var(--gray1);color:var(--text)}
+.nav-btn.active{background:var(--blue3);color:var(--blue);font-weight:600}
+/* STATUS */
+#sbar{position:fixed;bottom:0;left:0;right:0;height:32px;background:var(--bg2);border-top:1px solid var(--border);display:none;align-items:center;padding:0 20px;gap:20px;z-index:1000;font-size:11px;color:var(--text3);font-weight:500}
+#sbar.visible{display:flex}
+.sbar-pill{display:flex;align-items:center;gap:5px;padding:2px 8px;border-radius:20px;background:var(--green2);color:var(--green);font-size:10px;font-weight:600}
+.sbar-dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
+#clk{margin-left:auto;color:var(--text2);font-weight:600}
+#hkline{color:var(--blue);font-size:10px;font-style:italic}
+/* DASHBOARD */
+#dashboard{flex-direction:column;padding:56px 0 32px}
+.dash-inner{display:grid;grid-template-columns:216px 1fr;height:calc(100vh - 88px);overflow:hidden}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.sb-section{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:2px;text-transform:uppercase;padding:12px 16px 6px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;transition:all .15s;border-left:3px solid transparent;font-size:13px;font-weight:500;color:var(--text2);border-radius:0 6px 6px 0;margin:0 8px 0 0}
+.sb-item:hover{background:var(--gray1);color:var(--text)}
+.sb-item.active{background:var(--blue3);color:var(--blue);border-left-color:var(--blue);font-weight:600}
+.sb-item .sb-num{font-size:10px;font-weight:700;color:var(--text3);width:18px;flex-shrink:0}
+.sb-item.active .sb-num{color:var(--blue)}
+.sb-meta{padding:0 16px;display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.sb-meta-row{display:flex;flex-direction:column;gap:2px}
+.sb-meta-lbl{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:.5px;text-transform:uppercase}
+.sb-meta-val{font-size:13px;font-weight:700;color:var(--text)}
+.sb-meta-val.blue{color:var(--blue)}
+.sb-footer{margin-top:auto;padding:16px;border-top:1px solid var(--border)}
+.sb-footer-brand{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px}
+.sb-footer-sub{font-size:11px;color:var(--text3)}
+.status-live{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);font-weight:600;margin-top:6px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:livePulse 2s ease-in-out infinite}
+.main-content{overflow:hidden;position:relative;background:var(--bg)}
+.view{display:none;height:100%;overflow-y:auto;padding:28px 32px;scrollbar-width:thin;scrollbar-color:var(--gray2) transparent}
+.view.active{display:block}
+.view::-webkit-scrollbar{width:4px}
+.view::-webkit-scrollbar-thumb{background:var(--gray2);border-radius:2px}
+/* TYPOGRAPHY */
+.eyebrow{font-size:11px;font-weight:600;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.page-title{font-family:'DM Sans',sans-serif;font-size:24px;font-weight:700;color:var(--text);letter-spacing:-.5px;margin-bottom:6px}
+.page-title span{color:var(--blue)}
+.page-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
+/* CARDS */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.card-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.card.blue-top{border-top:3px solid var(--blue)}
+.card.teal-top{border-top:3px solid var(--teal)}
+.card.amber-top{border-top:3px solid var(--amber)}
+.card-body{font-size:12px;color:var(--text2);line-height:1.7}
+/* METRIC */
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.mcrd{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow);transition:box-shadow .2s}
+.mcrd:hover{box-shadow:var(--shadow2)}
+.mval{font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1}
+.mlbl{font-size:11px;color:var(--text3);font-weight:500;margin-top:4px}
+.mval.blue{color:var(--blue)}.mval.teal{color:var(--teal)}.mval.green{color:var(--green)}.mval.amber{color:var(--amber)}.mval.purple{color:var(--purple)}
+/* COMPARE */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.cmp{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.cmp.bad{border-left:4px solid var(--red)}.cmp.good{border-left:4px solid var(--green)}
+.cmp-t{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px}
+.bad .cmp-t{color:var(--red)}.good .cmp-t{color:var(--green)}
+.ci{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text2);margin-bottom:9px;line-height:1.45}
+.bad .ci::before{content:'✕';color:var(--red);flex-shrink:0;font-weight:700}
+.good .ci::before{content:'✓';color:var(--green);flex-shrink:0;font-weight:700}
+/* LAYERS */
+.layer-stack{display:flex;flex-direction:column;gap:4px;margin-bottom:16px}
+.layer{display:flex;align-items:stretch;gap:0;cursor:pointer;transition:all .2s}
+.lnum{font-size:10px;font-weight:700;color:var(--text3);width:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lbar{flex:1;border-radius:6px;padding:12px 16px;border:1px solid var(--border);transition:all .2s;display:flex;align-items:center;justify-content:space-between;background:var(--panel)}
+.lbar:hover{box-shadow:var(--shadow);transform:translateX(2px)}
+.lname{font-size:13px;font-weight:600;color:var(--text)}
+.ldesc{font-size:11px;color:var(--text2);margin-top:1px}
+.lmods{display:none;flex-wrap:wrap;gap:5px;margin-left:28px;padding:6px 0 2px}
+.lmods.open{display:flex}
+.mtag{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--gray1);color:var(--text2);border:1px solid var(--border)}
+.chevron{font-size:10px;color:var(--text3);transition:transform .2s;margin-left:8px}
+.lbar.open .chevron{transform:rotate(180deg)}
+/* PROOF */
+.proof-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.pcrd{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow);position:relative}
+.pcrd:hover{box-shadow:var(--shadow2);border-color:var(--blue);transform:translateY(-1px)}
+.pcrd-status{position:absolute;top:12px;right:12px;font-size:10px;font-weight:600;color:var(--blue);background:var(--blue3);padding:2px 8px;border-radius:20px}
+.pcrd-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;padding-right:52px}
+.pcrd-mahb{font-size:10px;color:var(--blue);font-weight:500;margin-bottom:7px}
+.pcrd-desc{font-size:11px;color:var(--text2);line-height:1.5}
+/* AGENTS */
+.agent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.acrd{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:16px 14px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.acrd:hover,.acrd.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(15,98,254,.1),var(--shadow)}
+.acrd.selected{background:var(--blue3)}
+.a-icon{font-size:24px;margin-bottom:8px}
+.a-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;line-height:1.3}
+.a-role{font-size:10px;color:var(--text3)}
+#agent-detail{display:none;background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:16px;border-left:4px solid var(--blue)}
+.ad-title{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:2px}
+.ad-tag{font-size:10px;font-weight:600;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
+.ad-body{display:flex;flex-direction:column;gap:14px}
+.ad-anim{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;line-height:0}
+.ad-anim svg{display:block;width:100%;height:auto}
+.ad-points{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:5px 20px}
+.ad-points li{font-size:12px;color:var(--text2);padding-left:14px;position:relative;line-height:1.45}
+.ad-points li::before{content:'→';position:absolute;left:0;color:var(--blue);font-size:10px;top:2px}
+/* ROI */
+.roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.rcrd{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.rval{font-family:'DM Sans',sans-serif;font-size:32px;font-weight:700;line-height:1;margin-bottom:3px;color:var(--blue)}
+.rlbl{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.rit{list-style:none;display:flex;flex-direction:column;gap:5px}
+.rit li{font-size:11px;color:var(--text2);padding-left:12px;position:relative}
+.rit li::before{content:'·';position:absolute;left:2px;color:var(--blue);font-weight:700}
+/* FLOW */
+.flow-wrap{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.flow-wrap svg{display:block;width:100%;height:auto}
+/* UTILS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
+.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}
+.highlight-box{background:var(--blue3);border-left:3px solid var(--blue);border-radius:0 var(--r) var(--r) 0;padding:14px 16px;font-size:13px;color:var(--blue2);font-weight:500;line-height:1.6;margin-bottom:16px}
+.tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin:2px}
+.tag.blue{background:var(--blue3);color:var(--blue)}.tag.teal{background:var(--teal2);color:var(--teal)}.tag.green{background:var(--green2);color:var(--green)}.tag.amber{background:var(--amber2);color:var(--amber)}.tag.purple{background:var(--purple2);color:var(--purple)}.tag.gray{background:var(--gray1);color:var(--gray4)}
+/* DEPLOY CTA BANNER */
+.deploy-cta{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,#0f62fe 0%,#0043ce 100%);border-radius:var(--r);padding:18px 24px;margin-bottom:20px;box-shadow:0 4px 20px rgba(15,98,254,.28);position:relative;overflow:hidden}
+.deploy-cta::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none}
+.deploy-cta::after{content:'';position:absolute;bottom:-30px;right:80px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
+.deploy-cta-icon{font-size:28px;flex-shrink:0;animation:rocketBob 2.4s ease-in-out infinite}
+.deploy-cta-text{flex:1}
+.deploy-cta-headline{font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;color:white;letter-spacing:-.3px;line-height:1.1}
+.deploy-cta-headline em{font-style:normal;color:#a8d4ff}
+.deploy-cta-sub{font-size:12px;color:rgba(255,255,255,.72);margin-top:4px;font-weight:400}
+.deploy-cta-badge{flex-shrink:0;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:10px 18px;text-align:center;backdrop-filter:blur(4px)}
+.deploy-cta-badge-num{font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;color:white;line-height:1;display:block}
+.deploy-cta-badge-lbl{font-size:10px;color:rgba(255,255,255,.7);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-top:2px;display:block}
+@keyframes rocketBob{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-5px) rotate(-5deg)}}
+@keyframes shimmerCta{0%{background-position:-200% 0}100%{background-position:200% 0}}
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes orbit{to{transform:rotate(360deg)}}
+@keyframes dash{to{stroke-dashoffset:-40}}
+</style>
+</head>
+<body>
+<canvas id="particles-canvas"></canvas>
+
+<section id="intro" class="section active">
+  <div class="intro-eyebrow">MindGraph Solutions · Airport Platform Demo</div>
+  <div class="intro-wordmark"><div class="intro-dot"></div><span class="intro-logo-text">MINDGRAPH SOLUTIONS</span></div>
+  <div class="intro-headline">Airport in a<br><span class="accent">Box</span></div>
+  <div class="intro-tagline">A modular airport platform that enables business functions, AI agents, intelligent automation, and deployment flexibility — on top of existing airport systems.</div>
+  <div class="intro-divider"></div>
+  <div class="intro-metrics">
+    <div class="imet"><div class="imet-num" id="c1">0</div><div class="imet-lbl">Business Functions</div></div>
+    <div class="imet"><div class="imet-num" id="c2">0</div><div class="imet-lbl">Architecture Layers</div></div>
+    <div class="imet"><div class="imet-num" id="c3">0</div><div class="imet-lbl">Automation Flows</div></div>
+    <div class="imet"><div class="imet-num" id="c4">0</div><div class="imet-lbl">Agent Domains</div></div>
+  </div>
+  <button class="intro-btn" onclick="enterDash()">Enter Dashboard →</button>
+</section>
+
+<nav id="nav">
+  <div class="nav-brand"><div class="nav-brand-dot"></div><span class="nav-brand-name">MindGraph</span><span class="nav-brand-sub">/ Airport in a Box</span></div>
+  <button class="nav-btn active" onclick="sv('what')">Overview</button>
+  <button class="nav-btn" onclick="sv('arch')">Architecture</button>
+  <button class="nav-btn" onclick="sv('flow')">Data Flow</button>
+  <button class="nav-btn" onclick="sv('proof')">Business Functions</button>
+  <button class="nav-btn" onclick="sv('ai')">AI Agents</button>
+  <button class="nav-btn" onclick="sv('roi')">Business Value</button>
+</nav>
+<div id="sbar">
+  <div class="sbar-pill"><div class="sbar-dot"></div>Platform Ready</div>
+  <span style="color:var(--text3)">Configurable · Modular · AI-Enabled</span>
+  <span id="hkline"></span>
+  <span id="clk"></span>
+</div>
+
+<section id="dashboard" class="section">
+  <div class="dash-inner">
+    <div class="sidebar">
+      <div class="sb-section">Sections</div>
+      <div class="sb-item active" onclick="sv('what')"><span class="sb-num">01</span>Overview</div>
+      <div class="sb-item" onclick="sv('arch')"><span class="sb-num">02</span>Architecture</div>
+      <div class="sb-item" onclick="sv('flow')"><span class="sb-num">03</span>Data Flow</div>
+      <div class="sb-item" onclick="sv('proof')"><span class="sb-num">04</span>Business Functions</div>
+      <div class="sb-item" onclick="sv('ai')"><span class="sb-num">05</span>AI Agents</div>
+      <div class="sb-item" onclick="sv('roi')"><span class="sb-num">06</span>Business Value</div>
+      <div class="sb-section" style="margin-top:16px">Platform Details</div>
+      <div class="sb-meta">
+        <div class="sb-meta-row"><div class="sb-meta-lbl">Deployment Model</div><div class="sb-meta-val blue">Modular / Overlay</div></div>
+        <div class="sb-meta-row"><div class="sb-meta-lbl">Environment</div><div class="sb-meta-val">Airport Platform Demo</div></div>
+        <div class="sb-meta-row"><div class="sb-meta-lbl">Scope</div><div class="sb-meta-val">Business Functions + AI Agents</div></div>
+        <div class="sb-meta-row"><div class="sb-meta-lbl">Version</div><div class="sb-meta-val blue">vNext</div></div>
+      </div>
+      <div class="sb-footer">
+        <div class="sb-footer-brand">MindGraph Solutions</div>
+        <div class="sb-footer-sub">Airport in a Box Platform</div>
+        <div class="status-live"><div class="live-dot"></div>All systems operational</div>
+      </div>
+    </div>
+
+    <div class="main-content">
+
+      <!-- 01 OVERVIEW -->
+      <div id="view-what" class="view active">
+        <div class="eyebrow">Section 01</div>
+        <div class="page-title">What is <span>Airport in a Box</span>?</div>
+        <div class="page-sub">A configurable airport transformation platform — deployable as a greenfield foundation, intelligent overlay, or phased modernisation layer. Activate only the business functions you need.</div>
+        <div class="deploy-cta">
+          <div class="deploy-cta-icon">🚀</div>
+          <div class="deploy-cta-text">
+            <div class="deploy-cta-headline">Deploy in <em>Weeks</em> — Not Years</div>
+            <div class="deploy-cta-sub">Modular · Phased · Configurable business functions · Minimal disruption · No forced rip-and-replace</div>
+          </div>
+          <div class="deploy-cta-badge"><span class="deploy-cta-badge-num">8</span><span class="deploy-cta-badge-lbl">Business Functions</span></div>
+          <div class="deploy-cta-badge"><span class="deploy-cta-badge-num">6</span><span class="deploy-cta-badge-lbl">Architecture Layers</span></div>
+          <div class="deploy-cta-badge"><span class="deploy-cta-badge-num">3</span><span class="deploy-cta-badge-lbl">Deployment Options</span></div>
+        </div>
+        <div class="metric-grid mb16">
+          <div class="mcrd"><div class="mval blue">Modular</div><div class="mlbl">Deployment Model</div></div>
+          <div class="mcrd"><div class="mval blue">6</div><div class="mlbl">Architecture Layers</div></div>
+          <div class="mcrd"><div class="mval green">3</div><div class="mlbl">Deployment Options</div></div>
+          <div class="mcrd"><div class="mval blue">8</div><div class="mlbl">Business Functions</div></div>
+        </div>
+        <div class="cmp-grid">
+          <div class="cmp bad">
+            <div class="cmp-t">Without AIAB</div>
+            <div class="ci">Fragmented IT silos per department — no unified view</div>
+            <div class="ci">No single data source for operational intelligence</div>
+            <div class="ci">Manual, paper-heavy processes across departments</div>
+            <div class="ci">Greenfield replacements costing years &amp; millions</div>
+            <div class="ci">No AI/ML capability layered on operations</div>
+            <div class="ci">Disconnected, reactive passenger experience</div>
+            <div class="ci">Carbon &amp; energy data trapped in BMS silos</div>
+          </div>
+          <div class="cmp good">
+            <div class="cmp-t">With AIAB</div>
+            <div class="ci">Single intelligent overlay — existing infra untouched</div>
+            <div class="ci">Unified data lake powering all analytics &amp; AI</div>
+            <div class="ci">Intelligent automation services eliminate manual, paper-heavy effort</div>
+            <div class="ci" style="align-items:center"><span style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#0f62fe,#0043ce);color:white;font-weight:700;font-size:11px;padding:3px 12px;border-radius:20px;letter-spacing:.3px;box-shadow:0 2px 8px rgba(15,98,254,.35)">🚀 Deploy in Weeks — Not Years</span></div>
+            <div class="ci">AI agents across operations, security, passenger experience, and analytics</div>
+            <div class="ci">Proactive, personalised passenger experience from home to gate</div>
+            <div class="ci">Energy optimisation and sustainability reporting available as a module</div>
+          </div>
+        </div>
+        <div class="highlight-box">"Airport in a Box is a modular platform that connects airport systems, activates configurable business functions, and enables AI-driven operations — without forcing full system replacement."</div>
+        <div class="g3">
+          <div class="card blue-top"><div class="card-label">Passenger Services</div><div class="card-body">Smart Journey App · Wayfinding<br>Queue Intelligence · FIDS<br>Conversational AI · Loyalty<br><span style="color:var(--text3);font-size:11px">▸ Biometric CX — Future Roadmap</span></div></div>
+          <div class="card teal-top"><div class="card-label">Airport Operations</div><div class="card-body">Ops Control Centre · Security<br>Airside · Landside · AFRS<br>Forms Engine · Approvals<br>Contract Lifecycle Management</div></div>
+          <div class="card amber-top"><div class="card-label">Intelligence &amp; Automation</div><div class="card-body">Unified Data Lake · Analytics<br>Energy Forecasting · Passenger Flow Intelligence<br>AI Agent Orchestration · Carbon &amp; ESG Reporting<br><span style="color:var(--text3);font-size:11px">▸ Airport Digital Twin — Future Roadmap</span></div></div>
+        </div>
+      </div>
+
+      <!-- 02 ARCHITECTURE -->
+      <div id="view-arch" class="view">
+        <div class="eyebrow">Section 02</div>
+        <div class="page-title"><span>Architecture</span> Stack</div>
+        <div class="page-sub">Configurable eight-layer architecture spanning infrastructure, data, integration, applications, AI governance, AI command center, AI agents, and experience delivery. Supports on-premises, sovereign cloud, and multi-cloud deployment. Click each layer to explore modules.</div>
+        <div class="layer-stack" id="lstack"></div>
+        <div class="card mt12">
+          <div class="card-label">Technology Foundation — Multi-Cloud &amp; Universal</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px" id="tech-tags"></div>
+        </div>
+        <div class="card mt12" style="border-left:4px solid var(--gray4)">
+          <div class="card-label">Deployment Topology Options</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:10px">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px">
+              <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px">🏢 On-Premises</div>
+              <div class="card-body">Full air-gapped deployment within airport-owned data centres. Suitable for high-security environments, regulatory mandates, or connectivity-constrained locations.</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px">
+              <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px">🛡️ Sovereign Cloud</div>
+              <div class="card-body">Deployment within a government-certified or nationally regulated cloud environment. Meets data residency, sovereignty, and regulatory compliance requirements for airport operators under national jurisdiction.</div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px">
+              <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px">☁️ Multi-Cloud / Hybrid</div>
+              <div class="card-body">Cloud-agnostic deployment across AWS, GCP, or Azure — or hybrid combinations. Workloads can be distributed across environments based on cost, latency, compliance, or data classification.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 DATA FLOW -->
+      <div id="view-flow" class="view">
+        <div class="eyebrow">Section 03</div>
+        <div class="page-title">Live <span>Data Flow</span></div>
+        <div class="page-sub">End-to-end intelligence pipeline: Airport source systems → Universal integration → Unified data lake → AI intelligence → Multi-channel experience.</div>
+        <div class="flow-wrap">
+          <svg viewBox="0 0 900 310" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <style>
+                @keyframes dashFlow{to{stroke-dashoffset:-30}}
+                @keyframes nodeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+                @keyframes pulseNode{0%,100%{opacity:.6}50%{opacity:1}}
+              </style>
+              <marker id="ea" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,1 L0,6 L6,3.5z" fill="#0f62fe"/></marker>
+              <marker id="ea2" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,1 L0,6 L6,3.5z" fill="#0e9e8e"/></marker>
+              <marker id="ea3" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,1 L0,6 L6,3.5z" fill="#6929c4"/></marker>
+            </defs>
+            <rect width="900" height="310" fill="#f8f9fc"/>
+            <!-- COL LABELS -->
+            <text x="80" y="22" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1.5">SOURCE SYSTEMS</text>
+            <text x="245" y="22" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1.5">INTEGRATION</text>
+            <text x="450" y="22" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1.5">DATA LAKE</text>
+            <text x="656" y="22" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1.5">INTELLIGENCE</text>
+            <text x="836" y="22" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1.5">EXPERIENCE</text>
+            <!-- SOURCE NODES -->
+            <rect x="12" y="34" width="136" height="30" rx="6" fill="white" stroke="#e0e3e8" style="animation:nodeIn .4s .05s ease both"/>
+            <text x="80" y="53" text-anchor="middle" font-family="Inter" font-size="10" font-weight="500" fill="#21272a">FIDS / ACARS</text>
+            <rect x="12" y="72" width="136" height="30" rx="6" fill="white" stroke="#e0e3e8" style="animation:nodeIn .4s .1s ease both"/>
+            <text x="80" y="91" text-anchor="middle" font-family="Inter" font-size="10" font-weight="500" fill="#21272a">IoT / Sensors</text>
+            <rect x="12" y="110" width="136" height="30" rx="6" fill="white" stroke="#e0e3e8" style="animation:nodeIn .4s .15s ease both"/>
+            <text x="80" y="129" text-anchor="middle" font-family="Inter" font-size="10" font-weight="500" fill="#21272a">Ops Systems</text>
+            <rect x="12" y="148" width="136" height="30" rx="6" fill="white" stroke="#e0e3e8" style="animation:nodeIn .4s .2s ease both"/>
+            <text x="80" y="167" text-anchor="middle" font-family="Inter" font-size="10" font-weight="500" fill="#21272a">BMS / EMS</text>
+            <rect x="12" y="186" width="136" height="30" rx="6" fill="white" stroke="#e0e3e8" style="animation:nodeIn .4s .25s ease both"/>
+            <text x="80" y="205" text-anchor="middle" font-family="Inter" font-size="10" font-weight="500" fill="#21272a">Commercial</text>
+            <rect x="12" y="224" width="136" height="30" rx="6" fill="white" stroke="#e0e3e8" style="animation:nodeIn .4s .3s ease both"/>
+            <text x="80" y="243" text-anchor="middle" font-family="Inter" font-size="10" font-weight="500" fill="#21272a">Security / AVSEC</text>
+            <rect x="12" y="262" width="136" height="30" rx="6" fill="white" stroke="#e0e3e8" style="animation:nodeIn .4s .35s ease both"/>
+            <text x="80" y="281" text-anchor="middle" font-family="Inter" font-size="10" font-weight="500" fill="#21272a">HR / Finance</text>
+            <!-- Arrows to adapter -->
+            <line x1="148" y1="49" x2="178" y2="172" stroke="#c1c7cd" stroke-width=".8" stroke-dasharray="5 3" style="animation:dashFlow 2s linear infinite" marker-end="url(#ea)"/>
+            <line x1="148" y1="87" x2="178" y2="174" stroke="#c1c7cd" stroke-width=".8" stroke-dasharray="5 3" style="animation:dashFlow 2s .2s linear infinite" marker-end="url(#ea)"/>
+            <line x1="148" y1="125" x2="178" y2="176" stroke="#c1c7cd" stroke-width=".8" stroke-dasharray="5 3" style="animation:dashFlow 2s .4s linear infinite" marker-end="url(#ea)"/>
+            <line x1="148" y1="163" x2="178" y2="178" stroke="#c1c7cd" stroke-width=".8" stroke-dasharray="5 3" style="animation:dashFlow 2s .6s linear infinite" marker-end="url(#ea)"/>
+            <line x1="148" y1="201" x2="178" y2="180" stroke="#c1c7cd" stroke-width=".8" stroke-dasharray="5 3" style="animation:dashFlow 2s .8s linear infinite" marker-end="url(#ea)"/>
+            <line x1="148" y1="239" x2="178" y2="182" stroke="#c1c7cd" stroke-width=".8" stroke-dasharray="5 3" style="animation:dashFlow 2s 1s linear infinite" marker-end="url(#ea)"/>
+            <line x1="148" y1="277" x2="178" y2="184" stroke="#c1c7cd" stroke-width=".8" stroke-dasharray="5 3" style="animation:dashFlow 2s 1.2s linear infinite" marker-end="url(#ea)"/>
+            <!-- ADAPTER -->
+            <rect x="180" y="148" width="126" height="60" rx="6" fill="white" stroke="#0f62fe" stroke-width="1.5" style="animation:nodeIn .5s .5s ease both"/>
+            <rect x="180" y="148" width="126" height="6" rx="3" fill="#0f62fe"/>
+            <rect x="180" y="151" width="126" height="3" fill="#0f62fe"/>
+            <text x="243" y="174" text-anchor="middle" font-family="Inter" font-size="10" font-weight="600" fill="#21272a">Universal Adapter</text>
+            <text x="243" y="188" text-anchor="middle" font-family="Inter" font-size="9" fill="#525d6e">API Gateway · ETL · Webhooks</text>
+            <!-- Adapter to lake -->
+            <line x1="306" y1="178" x2="346" y2="178" stroke="#0f62fe" stroke-width="1.5" stroke-dasharray="6 3" style="animation:dashFlow 1.5s linear infinite" marker-end="url(#ea)"/>
+            <!-- DATA LAKE -->
+            <rect x="348" y="88" width="202" height="180" rx="6" fill="white" stroke="#0e9e8e" stroke-width="1.5" style="animation:nodeIn .5s .7s ease both"/>
+            <rect x="348" y="88" width="202" height="6" rx="3" fill="#0e9e8e"/>
+            <rect x="348" y="91" width="202" height="3" fill="#0e9e8e"/>
+            <text x="449" y="118" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#21272a">Unified Data Lake</text>
+            <text x="449" y="134" text-anchor="middle" font-family="Inter" font-size="9" fill="#525d6e">Open Table Format (Iceberg)</text>
+            <line x1="362" y1="144" x2="536" y2="144" stroke="#e0e3e8" stroke-width="1"/>
+            <text x="449" y="161" text-anchor="middle" font-family="Inter" font-size="8.5" fill="#a8b0bd">FIDS · IoT · BMS · ESG</text>
+            <text x="449" y="177" text-anchor="middle" font-family="Inter" font-size="8.5" fill="#a8b0bd">Security · Commercial · Ops</text>
+            <text x="449" y="193" text-anchor="middle" font-family="Inter" font-size="8.5" fill="#a8b0bd">Unified Schema</text>
+            <text x="449" y="209" text-anchor="middle" font-family="Inter" font-size="8.5" fill="#a8b0bd">Analytics Engine</text>
+            <text x="449" y="225" text-anchor="middle" font-family="Inter" font-size="8.5" fill="#a8b0bd">ESG / Carbon Tracker</text>
+            <!-- Lake to intelligence -->
+            <line x1="550" y1="148" x2="584" y2="118" stroke="#0e9e8e" stroke-width="1.5" stroke-dasharray="6 3" style="animation:dashFlow 1.5s .3s linear infinite" marker-end="url(#ea2)"/>
+            <line x1="550" y1="200" x2="584" y2="232" stroke="#0e9e8e" stroke-width="1.5" stroke-dasharray="6 3" style="animation:dashFlow 1.5s .6s linear infinite" marker-end="url(#ea2)"/>
+            <!-- AI ENGINE -->
+            <rect x="586" y="76" width="158" height="74" rx="6" fill="white" stroke="#6929c4" stroke-width="1.5" style="animation:nodeIn .5s .9s ease both"/>
+            <rect x="586" y="76" width="158" height="6" rx="3" fill="#6929c4"/>
+            <rect x="586" y="79" width="158" height="3" fill="#6929c4"/>
+            <text x="665" y="106" text-anchor="middle" font-family="Inter" font-size="10" font-weight="600" fill="#21272a">AI Engine</text>
+            <text x="665" y="120" text-anchor="middle" font-family="Inter" font-size="8.5" fill="#525d6e">Predictive Analytics · ML Models</text>
+            <text x="665" y="134" text-anchor="middle" font-family="Inter" font-size="8.5" fill="#525d6e">LLM Agents · Carbon AI</text>
+            <!-- OPS PLATFORM -->
+            <rect x="586" y="210" width="158" height="74" rx="6" fill="white" stroke="#0e9e8e" stroke-width="1.5" style="animation:nodeIn .5s 1.1s ease both"/>
+            <rect x="586" y="210" width="158" height="6" rx="3" fill="#0e9e8e"/>
+            <rect x="586" y="213" width="158" height="3" fill="#0e9e8e"/>
+            <text x="665" y="240" text-anchor="middle" font-family="Inter" font-size="10" font-weight="600" fill="#21272a">Business Functions</text>
+            <text x="665" y="254" text-anchor="middle" font-family="Inter" font-size="8.5" fill="#525d6e">CLM · ECMS · OIS · APSS</text>
+            <text x="665" y="268" text-anchor="middle" font-family="Inter" font-size="8.5" fill="#525d6e">Intelligent Automation Services</text>
+            <!-- Intelligence to experience -->
+            <line x1="744" y1="110" x2="770" y2="82" stroke="#6929c4" stroke-width="1" stroke-dasharray="5 3" style="animation:dashFlow 1.2s linear infinite" marker-end="url(#ea3)"/>
+            <line x1="744" y1="136" x2="770" y2="186" stroke="#6929c4" stroke-width="1" stroke-dasharray="5 3" style="animation:dashFlow 1.2s .3s linear infinite" marker-end="url(#ea3)"/>
+            <line x1="744" y1="240" x2="770" y2="240" stroke="#0e9e8e" stroke-width="1" stroke-dasharray="5 3" style="animation:dashFlow 1.2s .6s linear infinite" marker-end="url(#ea2)"/>
+            <line x1="744" y1="268" x2="770" y2="284" stroke="#0e9e8e" stroke-width="1" stroke-dasharray="5 3" style="animation:dashFlow 1.2s .9s linear infinite" marker-end="url(#ea2)"/>
+            <!-- EXPERIENCE -->
+            <rect x="772" y="58" width="116" height="38" rx="5" fill="white" stroke="#e0e3e8" style="animation:nodeIn .4s 1.3s ease both"/>
+            <rect x="772" y="58" width="4" height="38" rx="2" fill="#6929c4"/>
+            <text x="836" y="75" text-anchor="middle" font-family="Inter" font-size="9.5" font-weight="500" fill="#21272a">Passenger App</text>
+            <text x="836" y="88" text-anchor="middle" font-family="Inter" font-size="8" fill="#a8b0bd">Home-to-Gate</text>
+            <rect x="772" y="168" width="116" height="38" rx="5" fill="white" stroke="#e0e3e8" style="animation:nodeIn .4s 1.45s ease both"/>
+            <rect x="772" y="168" width="4" height="38" rx="2" fill="#6929c4"/>
+            <text x="836" y="185" text-anchor="middle" font-family="Inter" font-size="9.5" font-weight="500" fill="#21272a">Exec Dashboards</text>
+            <text x="836" y="198" text-anchor="middle" font-family="Inter" font-size="8" fill="#a8b0bd">C-Suite BI</text>
+            <rect x="772" y="220" width="116" height="38" rx="5" fill="white" stroke="#e0e3e8" style="animation:nodeIn .4s 1.6s ease both"/>
+            <rect x="772" y="220" width="4" height="38" rx="2" fill="#0e9e8e"/>
+            <text x="836" y="237" text-anchor="middle" font-family="Inter" font-size="9.5" font-weight="500" fill="#21272a">Staff Ops Portal</text>
+            <text x="836" y="250" text-anchor="middle" font-family="Inter" font-size="8" fill="#a8b0bd">8 Departments</text>
+            <rect x="772" y="272" width="116" height="30" rx="5" fill="white" stroke="#e0e3e8" style="animation:nodeIn .4s 1.75s ease both"/>
+            <rect x="772" y="272" width="4" height="30" rx="2" fill="#0e9e8e"/>
+            <text x="836" y="291" text-anchor="middle" font-family="Inter" font-size="9.5" font-weight="500" fill="#21272a">AI Chatbot / Automation</text>
+          </svg>
+        </div>
+        <div class="g2">
+          <div class="card"><div class="card-label">Data Strategy</div><div class="card-body">Per-system source models → Unified schema → Open table format (Iceberg/Delta) → Cloud analytics engine → Configurable dashboards.<br><br><strong style="color:var(--teal)">Selective ingestion.</strong> The platform pulls only the data needed to activate each business function — airports retain full ownership of source systems.</div></div>
+          <div class="card"><div class="card-label">Integration Approach</div><div class="card-body">Universal API Gateway · REST / Webhooks<br>Industry-standard connectors (SITA, MDES, FIDS)<br>Real-time + batch ingestion pipelines<br>Multi-cloud and on-premises compatible<br><br><strong style="color:var(--blue)">Airport systems stay intact.</strong> The platform adds intelligence without disrupting existing operations.</div></div>
+        </div>
+        <div class="card mt12" style="border-left:4px solid #9b1fff">
+          <div class="card-label" style="color:#9b1fff">Consumption, Metering &amp; Chargeback</div>
+          <div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin:6px 0 12px">Infrastructure Consumption Mapped to Business Functions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px">
+              <div style="font-size:10px;font-weight:700;color:#9b1fff;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Compute Visibility</div>
+              <ul class="rit" style="gap:6px">
+                <li><strong style="color:var(--text)">GPU Consumption</strong> — per agent, per inference workload, per business function</li>
+                <li><strong style="color:var(--text)">AI-Compute vs General-Compute</strong> — differentiated tracking and billing across platform layers</li>
+                <li><strong style="color:var(--text)">Kubernetes Resource Usage</strong> — pod-level CPU, memory, and namespace-level cost attribution</li>
+                <li><strong style="color:var(--text)">Observability Platform Integration</strong> — live dashboards via OpenTelemetry and Prometheus/Grafana</li>
+              </ul>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px">
+              <div style="font-size:10px;font-weight:700;color:#9b1fff;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Chargeback by Business Function</div>
+              <ul class="rit" style="gap:6px">
+                <li><strong style="color:var(--text)">Function-Level Cost Attribution</strong> — each business unit sees its own platform consumption and cost</li>
+                <li><strong style="color:var(--text)">Sponsorship Justification</strong> — cost vs value reporting per function enables budget accountability</li>
+                <li><strong style="color:var(--text)">AI vs Non-AI Application Differentiation</strong> — clear separation of AI-compute workloads from general application hosting</li>
+                <li><strong style="color:var(--text)">Metering Dashboards</strong> — self-service consumption views for business function owners and finance teams</li>
+              </ul>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+            <div style="background:var(--blue3);border:1px solid var(--blue);border-radius:6px;padding:10px;text-align:center"><div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">GPU Pool</div><div style="font-size:11px;color:var(--text2)">AI-compute tracked per agent workload</div></div>
+            <div style="background:#f3e8ff;border:1px solid #9b1fff;border-radius:6px;padding:10px;text-align:center"><div style="font-size:10px;font-weight:700;color:#9b1fff;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Kubernetes</div><div style="font-size:11px;color:var(--text2)">Namespace cost attribution per function</div></div>
+            <div style="background:var(--teal2);border:1px solid var(--teal);border-radius:6px;padding:10px;text-align:center"><div style="font-size:10px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">General Compute</div><div style="font-size:11px;color:var(--text2)">Standard workloads metered separately</div></div>
+            <div style="background:var(--green2);border:1px solid var(--green);border-radius:6px;padding:10px;text-align:center"><div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Chargeback</div><div style="font-size:11px;color:var(--text2)">Cost reports per business unit monthly</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 BUSINESS FUNCTIONS -->
+      <div id="view-proof" class="view">
+        <div class="eyebrow">Section 04</div>
+        <div class="page-title">Airport <span>Business Functions</span></div>
+        <div class="page-sub">Configurable airport business functions that can be enabled as modular platform capabilities — activate what you need, when you need it.</div>
+        <div class="proof-grid" id="pgrid"></div>
+        <div class="card mt16" style="border-left:4px solid var(--teal)">
+          <div class="card-label">Platform Credibility</div>
+          <div class="card-body">The passenger services function within this platform has been independently validated through delivery at international airport scale, earning recognition for measurable digital transformation impact. All business functions listed above are platform-ready and field-tested — not conceptual designs.</div>
+        </div>
+      </div>
+
+      <!-- 05 AI AGENTS -->
+      <div id="view-ai" class="view">
+        <div class="eyebrow">Section 05</div>
+        <div class="page-title">AI <span>Agent Layer</span></div>
+        <div class="page-sub">Domain-specific AI agents delivering business value and operational efficiency across all airport verticals. Select an agent to explore.</div>
+        <div class="agent-grid" id="agrid"></div>
+        <div id="agent-detail">
+          <div class="ad-title" id="ad-title"></div>
+          <div class="ad-tag" id="ad-tag"></div>
+          <div class="ad-body">
+            <div class="ad-anim" id="ad-anim"></div>
+            <ul class="ad-points" id="ad-pts"></ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Agent Orchestration Terminal</div>
+          <div style="font-family:monospace;font-size:11px;line-height:2;color:var(--text2);background:var(--gray1);padding:14px 16px;border-radius:6px;margin-top:8px">
+            <span style="color:var(--blue);font-weight:600">$</span> invoke-agent --domain all --mode autonomous<br>
+            <span style="color:var(--teal)">▸ Initialising Airport Agent Orchestration Layer...</span><br>
+            <span>▸ Flight Ops Agent — 342 flights indexed, 8 disruptions detected</span><br>
+            <span>▸ Energy Agent — 72hr demand forecast updated · 12% saving identified</span><br>
+            <span>▸ Passenger Experience Agent — 18,400 passengers profiled, journey optimised</span><br>
+            <span style="color:var(--amber)">▸ Anomaly: Gate B12 queue spike — re-routing triggered...</span><br>
+            <span style="color:var(--green)">✓ 7 agent actions dispatched → AOCC · Staff alerts · Passenger app · Automation queue · Energy ops</span><br>
+            <span style="color:#c0399f">▸ AI Governance layer — assurance checks passed · 0 policy violations · models current</span><br>
+            <span style="color:#9b1fff">▸ AI Command Center — all agents healthy · chargeback metering active · SecOps nominal</span>
+          </div>
+        </div>
+
+        <!-- AI TOOLS & GOVERNANCE -->
+        <div class="card mt12" style="border-left:4px solid #c0399f">
+          <div class="card-label" style="color:#c0399f">AI Tools &amp; Governance Layer</div>
+          <div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin:6px 0 10px">Continuous AI Assurance, Testing &amp; Responsible AI Controls</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px">
+              <div style="font-size:10px;font-weight:700;color:#c0399f;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Testing &amp; Assurance</div>
+              <ul class="rit" style="gap:5px"><li>AI functional testing frameworks</li><li>AI security testing &amp; red-teaming</li><li>Model performance regression checks</li><li>Continuous assurance pipelines</li></ul>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px">
+              <div style="font-size:10px;font-weight:700;color:#c0399f;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Governance &amp; Compliance</div>
+              <ul class="rit" style="gap:5px"><li>Regulatory compliance framework</li><li>Responsible AI policy enforcement</li><li>Bias detection &amp; fairness audits</li><li>Explainability &amp; auditability controls</li></ul>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px">
+              <div style="font-size:10px;font-weight:700;color:#c0399f;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Model Lifecycle</div>
+              <ul class="rit" style="gap:5px"><li>Model change monitoring &amp; alerting</li><li>Model deprecation management</li><li>Version governance &amp; rollback</li><li>Drift detection &amp; retraining triggers</li></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI COMMAND CENTER -->
+        <div class="card mt12" style="border-left:4px solid #9b1fff">
+          <div class="card-label" style="color:#9b1fff">AI Command Center</div>
+          <div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin:6px 0 10px">Unified Observability, Security Operations &amp; Governance Console</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px">
+              <div style="font-size:10px;font-weight:700;color:#9b1fff;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Observability &amp; Operations</div>
+              <ul class="rit" style="gap:5px"><li>Platform-wide AI agent health &amp; performance monitoring</li><li>Model inference latency, throughput &amp; error-rate tracking</li><li>Infrastructure compute consumption dashboards (GPU, CPU, memory)</li><li>Application-level observability with OpenTelemetry integration</li></ul>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px">
+              <div style="font-size:10px;font-weight:700;color:#9b1fff;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Security Ops &amp; Assurance</div>
+              <ul class="rit" style="gap:5px"><li>Security operations center (SecOps) integration for AI workloads</li><li>Continuous threat detection across agent and automation layers</li><li>Policy compliance status across all deployed functions</li><li>Audit trail for all AI decisions and automated actions</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 06 BUSINESS VALUE -->
+      <div id="view-roi" class="view">
+        <div class="eyebrow">Section 06</div>
+        <div class="page-title">Business <span>Value</span> Realisation</div>
+        <div class="page-sub">Representative value levers enabled through modular deployment of Airport in a Box — applicable across airport environments and scale.</div>
+        <div class="deploy-cta" style="margin-bottom:16px">
+          <div class="deploy-cta-icon">🚀</div>
+          <div class="deploy-cta-text">
+            <div class="deploy-cta-headline">Deploy in <em>Weeks</em> — Not Years</div>
+            <div class="deploy-cta-sub">Activate business functions modularly. No system replacements. No greenfield rebuild. Functions go live in weeks — value accrues from day one.</div>
+          </div>
+        </div>
+        <!-- 6 Value Lever cards in 3x2 grid -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+          <div class="rcrd" style="border-top:3px solid var(--blue)">
+            <div style="font-size:22px;margin-bottom:6px">🚀</div>
+            <div class="rval" style="font-size:18px">Rapid Deployment</div>
+            <div class="rlbl">Value Lever 1</div>
+            <ul class="rit">
+              <li>Activate business functions in weeks, not multi-year programmes</li>
+              <li>Phased, modular rollout reduces delivery risk and time-to-value</li>
+              <li>Avoid full replacement — deploy alongside existing systems</li>
+            </ul>
+          </div>
+          <div class="rcrd" style="border-top:3px solid var(--teal)">
+            <div style="font-size:22px;margin-bottom:6px">🔧</div>
+            <div class="rval" style="font-size:18px;color:var(--teal)">Modular Approach</div>
+            <div class="rlbl">Value Lever 2</div>
+            <ul class="rit">
+              <li>Switch required business functions on or off as priorities change</li>
+              <li>Supports interoperability between new and existing airport systems</li>
+              <li>Phased enablement — expand capability without disrupting operations</li>
+            </ul>
+          </div>
+          <div class="rcrd" style="border-top:3px solid var(--amber)">
+            <div style="font-size:22px;margin-bottom:6px">🔄</div>
+            <div class="rval" style="font-size:18px;color:var(--amber)">Rapid Sunset</div>
+            <div class="rlbl">Value Lever 3</div>
+            <ul class="rit">
+              <li>Accelerate retirement of low-intrinsic-value legacy applications</li>
+              <li>Consolidate fragmented workflows into a unified platform layer</li>
+              <li>Transition to higher-value digital capabilities incrementally</li>
+            </ul>
+          </div>
+          <div class="rcrd" style="border-top:3px solid var(--purple)">
+            <div style="font-size:22px;margin-bottom:6px">🤖</div>
+            <div class="rval" style="font-size:18px;color:var(--purple)">AI Agent Roadmap</div>
+            <div class="rlbl">Value Lever 4</div>
+            <ul class="rit">
+              <li>Track which applications are ready to support AI agent capabilities</li>
+              <li>Visualise progress toward enabling existing functions for agent-based operations</li>
+              <li>Structured pathway from automation to autonomous AI decision-making</li>
+            </ul>
+          </div>
+          <div class="rcrd" style="border-top:3px solid var(--green)">
+            <div style="font-size:22px;margin-bottom:6px">📈</div>
+            <div class="rval" style="font-size:18px;color:var(--green)">Cost vs Benefit</div>
+            <div class="rlbl">Value Lever 5</div>
+            <ul class="rit">
+              <li>Show benefit realisation by business function — operational, automation, revenue</li>
+              <li>Connect platform cost to chargeback by business unit</li>
+              <li>Justify platform investment through measurable, function-level value tracking</li>
+            </ul>
+          </div>
+          <div class="rcrd" style="border-top:3px solid #9b1fff">
+            <div style="font-size:22px;margin-bottom:6px">👁️</div>
+            <div class="rval" style="font-size:18px;color:#9b1fff">AI Observability</div>
+            <div class="rlbl">Value Lever 6</div>
+            <ul class="rit">
+              <li>Continuously monitor value, maturity, and readiness of AI-enabled applications</li>
+              <li>Track operational condition and health of all active agents</li>
+              <li>Assure governance compliance and responsible AI standards are maintained in production</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Deploy CTA metric strip -->
+        <div class="metric-grid mb12">
+          <div class="mcrd"><div class="mval blue">8+</div><div class="mlbl">Business Functions</div></div>
+          <div class="mcrd"><div class="mval green">6</div><div class="mlbl">AI Agents</div></div>
+          <div class="mcrd" style="background:linear-gradient(135deg,#0f62fe 0%,#0043ce 100%);border-color:#0f62fe;box-shadow:0 4px 16px rgba(15,98,254,.3)"><div class="mval" style="color:white;font-size:18px;letter-spacing:-.5px;line-height:1.1">Weeks<br><span style="font-size:12px;font-weight:600;opacity:.8">Not Years</span></div><div class="mlbl" style="color:rgba(255,255,255,.7);margin-top:6px">🚀 Time to Deploy</div></div>
+          <div class="mcrd"><div class="mval purple">Zero</div><div class="mlbl">Forced Replacements</div></div>
+        </div>
+
+        <!-- Benefit realisation table -->
+        <div class="card mb12">
+          <div class="card-label">Benefit Realisation by Business Function</div>
+          <div style="margin-top:10px;overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:11px">
+              <thead>
+                <tr style="background:var(--gray1)">
+                  <th style="text-align:left;padding:8px 10px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border)">Business Function</th>
+                  <th style="padding:8px 10px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border);text-align:center">Compute Type</th>
+                  <th style="padding:8px 10px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border);text-align:center">Operational Value</th>
+                  <th style="padding:8px 10px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border);text-align:center">Automation Gain</th>
+                  <th style="padding:8px 10px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border);text-align:center">Agent Ready</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:7px 10px;font-weight:500;color:var(--text)">Smart Passenger Journey</td>
+                  <td style="padding:7px 10px;text-align:center"><span style="background:var(--purple2);color:var(--purple);font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">AI Compute</span></td>
+                  <td style="padding:7px 10px;text-align:center;color:var(--green);font-weight:600">High</td>
+                  <td style="padding:7px 10px;text-align:center;color:var(--teal);font-weight:600">Medium</td>
+                  <td style="padding:7px 10px;text-align:center">✅</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+                  <td style="padding:7px 10px;font-weight:500;color:var(--text)">Airport Operations Mgmt</td>
+                  <td style="padding:7px 10px;text-align:center"><span style="background:var(--blue3);color:var(--blue);font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">General</span></td>
+                  <td style="padding:7px 10px;text-align:center;color:var(--green);font-weight:600">High</td>
+                  <td style="padding:7px 10px;text-align:center;color:var(--green);font-weight:600">High</td>
+                  <td style="padding:7px 10px;text-align:center">✅</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:7px 10px;font-weight:500;color:var(--text)">Contract &amp; Commercial Ops</td>
+                  <td style="padding:7px 10px;text-align:center"><span style="background:var(--blue3);color:var(--blue);font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">General</span></td>
+                  <td style="padding:7px 10px;text-align:center;color:var(--teal);font-weight:600">Medium</td>
+                  <td style="padding:7px 10px;text-align:center;color:var(--green);font-weight:600">High</td>
+                  <td style="padding:7px 10px;text-align:center">🔜</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+                  <td style="padding:7px 10px;font-weight:500;color:var(--text)">Aviation Security Mgmt</td>
+                  <td style="padding:7px 10px;text-align:center"><span style="background:var(--purple2);color:var(--purple);font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">AI Compute</span></td>
+                  <td style="padding:7px 10px;text-align:center;color:var(--green);font-weight:600">High</td>
+                  <td style="padding:7px 10px;text-align:center;color:var(--teal);font-weight:600">Medium</td>
+                  <td style="padding:7px 10px;text-align:center">✅</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:7px 10px;font-weight:500;color:var(--text)">Intelligent Automation</td>
+                  <td style="padding:7px 10px;text-align:center"><span style="background:var(--blue3);color:var(--blue);font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">General</span></td>
+                  <td style="padding:7px 10px;text-align:center;color:var(--teal);font-weight:600">Medium</td>
+                  <td style="padding:7px 10px;text-align:center;color:var(--green);font-weight:600">High</td>
+                  <td style="padding:7px 10px;text-align:center">🔜</td>
+                </tr>
+                <tr style="background:var(--bg)">
+                  <td style="padding:7px 10px;font-weight:500;color:var(--text)">Analytics &amp; Decision Intelligence</td>
+                  <td style="padding:7px 10px;text-align:center"><span style="background:var(--purple2);color:var(--purple);font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">AI Compute</span></td>
+                  <td style="padding:7px 10px;text-align:center;color:var(--green);font-weight:600">High</td>
+                  <td style="padding:7px 10px;text-align:center;color:var(--teal);font-weight:600">Medium</td>
+                  <td style="padding:7px 10px;text-align:center">✅</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3-Horizon roadmap -->
+        <div class="card">
+          <div class="card-label">3-Horizon Value Roadmap</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:14px">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:8px;border-bottom:2px solid var(--blue)">Short-Term · 0–6M</div>
+              <div class="card-body">Activate targeted business functions within weeks. Rapid deployment of automation and operations management. Immediate operational value with minimal disruption to existing systems.</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:8px;border-bottom:2px solid var(--teal)">Mid-Term · 6–18M</div>
+              <div class="card-body">Unified data lake operational. AI agents activated and governed. Energy forecasting and passenger flow intelligence live. Chargeback metering active per business unit. Carbon and ESG reporting automated.</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:8px;border-bottom:2px solid var(--purple)">Long-Term · 18M+</div>
+              <div class="card-body"><strong style="color:var(--purple)">Future Roadmap</strong> — Airport digital twin. Biometric passenger processing. Autonomous operations management. IoT-integrated smart airport ecosystem. Directional items, subject to programme scoping.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /dash-inner -->
+</section>
+<script>
+// PARTICLES
+(function(){
+  const c=document.getElementById('particles-canvas');
+  const ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  const pts=Array.from({length:36},()=>({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.5+.5}));
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>c.width)p.vx*=-1;
+      if(p.y<0||p.y>c.height)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(15,98,254,0.12)';ctx.fill();
+    });
+    pts.forEach((a,i)=>pts.slice(i+1).forEach(b=>{
+      const d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<110){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(15,98,254,${.05*(1-d/110)})`;ctx.lineWidth=.5;ctx.stroke();}
+    }));
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+function animCount(el,target,suffix=''){
+  let v=0;const step=Math.ceil(target/28);
+  const t=setInterval(()=>{v=Math.min(v+step,target);el.textContent=v+(suffix||'');if(v>=target)clearInterval(t);},45);
+}
+
+const hkmsgs=['Scanning airport systems...','Mapping business functions...','Initialising AI agent layer...','Loading platform modules...','Deploying intelligence platform...','Configuring automation flows...'];
+let hki=0;
+function rotateHk(){const el=document.getElementById('hkline');if(el)el.textContent=hkmsgs[hki%hkmsgs.length];hki++;setTimeout(rotateHk,3000);}
+function tick(){const el=document.getElementById('clk');if(el)el.textContent=new Date().toLocaleTimeString('en-US',{hour12:false});setTimeout(tick,1000);}
+
+function enterDash(){
+  const intro=document.getElementById('intro');
+  intro.style.transition='opacity .5s';intro.style.opacity='0';
+  setTimeout(()=>{
+    intro.classList.remove('active');intro.style.display='none';
+    const d=document.getElementById('dashboard');d.classList.add('active');d.style.opacity='0';
+    setTimeout(()=>{d.style.transition='opacity .4s';d.style.opacity='1';},30);
+    document.getElementById('nav').classList.add('visible');
+    document.getElementById('sbar').classList.add('visible');
+    rotateHk();tick();
+  },500);
+}
+
+const VMAP={what:0,arch:1,flow:2,proof:3,ai:4,roi:5};
+function sv(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  const nb=document.querySelectorAll('.nav-btn');
+  const si=document.querySelectorAll('.sb-item');
+  if(nb[VMAP[id]])nb[VMAP[id]].classList.add('active');
+  if(si[VMAP[id]])si[VMAP[id]].classList.add('active');
+}
+
+const LAYERS=[
+  {n:'8',name:'Experience Layer',desc:'Smart Passenger App · Chatbot · Staff Portals · FIDS · Wayfinding',color:'#0f62fe',mods:['Smart Journey App','Conversational AI (LLM)','Staff Web Portals','FIDS Display Interfaces','Wayfinding & AR Navigation','Loyalty & Personalisation']},
+  {n:'7',name:'AI / Agent Layer',desc:'Aviation Security Agent · Passenger Experience Agent · Flight Ops Agent · Energy Agent · Analytics Agent · Orchestration Agent',color:'#6929c4',mods:['Agent Orchestration Framework','Aviation Security Agent','Passenger Experience Agent','Flight Operations Intelligence Agent','Energy & Sustainability Agent','Executive Analytics Agent','Intelligence Orchestration Agent']},
+  {n:'6',name:'AI Command Center',desc:'Observability · Assurance · Security Ops · Governance · Operational Monitoring · Metering & Chargeback',color:'#9b1fff',mods:['Platform Observability Dashboard','AI Agent Health & Performance Monitor','Security Operations Center (SecOps)','Governance & Audit Console','Consumption Metering by Business Function','GPU / AI-Compute Chargeback','Application-to-Function Cost Mapping']},
+  {n:'5',name:'AI Tools & Governance',desc:'AI Testing · Functional & Security Assurance · Regulatory Compliance · Responsible AI · Model Lifecycle',color:'#c0399f',mods:['AI Functional Testing','AI Security Testing & Assurance','Regulatory Compliance Framework','Responsible AI Controls','Continuous AI Assurance','Model Change Monitoring','Model Deprecation Management']},
+  {n:'4',name:'Application Layer',desc:'Contract Mgmt · Ops Info System · Enterprise CMS · Security · Intelligent Automation',color:'#0e9e8e',mods:['Contract Lifecycle Mgmt','Ops Information System','Enterprise Content Mgmt','Security & Pass Mgmt','Airport Gateway Portal','Intelligent Automation Services']},
+  {n:'3',name:'Integration / API Layer',desc:'Universal API Gateway · REST Adapters · Webhooks · Middleware',color:'#c96a00',mods:['Universal API Gateway','SITA Connector','MDES Adapter','REST / Webhook APIs','e-Signature Integration','Event Streaming (Kafka/Kinesis)']},
+  {n:'2',name:'Data Lake Layer',desc:'Open Table Format · Unified Data Model · Cloud Analytics · Event Intelligence',color:'#198038',mods:['Apache Iceberg / Delta Lake','Unified Data Model','Cloud Analytics Engine','BI Dashboards (Looker/Superset)','Event Intelligence Layer','ESG & Carbon Data Store']},
+  {n:'1',name:'Infrastructure Layer',desc:'On-Premises · Sovereign Cloud · Multi-Cloud · Kubernetes · VPN · Container Registry',color:'#525d6e',mods:['On-Premises Deployment','Sovereign Cloud (Air-Gapped)','Multi-Cloud (AWS / GCP / Azure)','Kubernetes Orchestration','VPN & Secure Networks','Container Registry','CDN & Edge','Zero-Trust Security']},
+];
+const TECHS=[
+  ['Kubernetes','blue'],['Kafka / Kinesis','blue'],['Apache Iceberg','green'],['Delta Lake','green'],['dbt Analytics','green'],['Apache Airflow','green'],['Terraform IaC','teal'],['Docker','teal'],['React / React Native','teal'],['Spring Boot','teal'],['GraphQL / REST','amber'],['OpenAI / Bedrock','amber'],['LangChain Agents','amber'],['Drupal CMS','blue'],['Prometheus + Grafana','blue'],['OpenTelemetry','blue'],['MLflow / Evidently AI','purple'],['OPA (Open Policy Agent)','purple'],['DocuSign / e-Sign','green'],['SITA AODB','teal'],['Looker / Superset','green'],['Sovereign Cloud Ready','gray']
+];
+
+function buildLayers(){
+  const st=document.getElementById('lstack');
+  LAYERS.forEach(l=>{
+    const w=document.createElement('div');
+    const row=document.createElement('div');row.className='layer';
+    const num=document.createElement('div');num.className='lnum';num.textContent=l.n;num.style.color=l.color;
+    const bar=document.createElement('div');bar.className='lbar';
+    bar.style.borderLeft=`4px solid ${l.color}`;
+    bar.innerHTML=`<div><div class="lname">${l.name}</div><div class="ldesc">${l.desc}</div></div><span class="chevron">▼</span>`;
+    const mods=document.createElement('div');mods.className='lmods';
+    l.mods.forEach(m=>{const t=document.createElement('span');t.className='mtag';t.style.color=l.color;t.style.borderColor=l.color+'33';t.textContent=m;mods.appendChild(t);});
+    row.appendChild(num);row.appendChild(bar);w.appendChild(row);w.appendChild(mods);
+    w.style.cursor='pointer';
+    w.addEventListener('click',()=>{
+      mods.classList.toggle('open');bar.classList.toggle('open');
+      bar.style.boxShadow=mods.classList.contains('open')?`0 2px 8px ${l.color}22,0 0 0 2px ${l.color}22`:'';
+    });
+    st.appendChild(w);
+  });
+  const tt=document.getElementById('tech-tags');
+  TECHS.forEach(([t,c])=>{const s=document.createElement('span');s.className=`tag ${c}`;s.textContent=t;tt.appendChild(s);});
+}
+
+const PROOF=[
+  {title:'Smart Passenger Journey',mahb:'Platform Capability · Passenger Services',desc:'Home-to-gate journey orchestration — real-time flight information, indoor wayfinding, queue wait times, geolocation-based alerts, parking, loyalty integration, and in-app conversational AI.',s:'Module'},
+  {title:'Airport Operations Management',mahb:'Platform Capability · Airport Operations',desc:'Unified operations platform spanning multiple departments — AOCC, Security, Airside, Landside, and Emergency. Forms engine, multi-level approval workflows, VVIP management, and full audit trail.',s:'Module'},
+  {title:'Omnichannel Service Management',mahb:'Platform Capability · Passenger Experience',desc:'Multi-channel service consolidation across web, app, kiosk, and email. Integrated service management with SLA tracking and enterprise CMS for unified digital surfaces.',s:'Module'},
+  {title:'Contract & Commercial Operations',mahb:'Platform Capability · Commercial',desc:'End-to-end contract workflow — creation, multi-department approval routing, e-signature integration, centralised repository with role-based access, full version history and audit trail.',s:'Module'},
+  {title:'Aviation Security Management',mahb:'Platform Capability · Security & Compliance',desc:'Digital pass management for airport access — application workflows, mobile approvals, document handling, real-time status dashboards, RBAC, and regulator-ready compliance reporting.',s:'Module'},
+  {title:'Intelligent Automation Services',mahb:'Platform Capability · Automation',desc:'Configurable automation flows for document generation, regulatory approvals, procurement data extraction, financial calculation workflows, and service ticket automation.',s:'Module'},
+  {title:'Stakeholder Access Portal',mahb:'Platform Capability · Multi-Stakeholder',desc:'Unified multi-login gateway with role-based access, AI-powered chatbot, self-service analytics, workflow approvals, and centralised content management for all airport stakeholders.',s:'Module'},
+  {title:'Digital Commerce Experience',mahb:'Platform Capability · Revenue & Brand',desc:'Multilingual digital commerce platform — AI chatbot, FIDS integration, social login, POS connectivity, global site search, and promotional content management for retail and commercial.',s:'Module'},
+  {title:'Enterprise Content Services',mahb:'Platform Capability · Content Governance',desc:'Unified content governance across all airport digital properties — consolidating fragmented portals into a single CMS for POIs, FAQs, promotions, multilingual content and approval workflows.',s:'Module'},
+  {title:'Analytics & Decision Intelligence',mahb:'Platform Capability · Intelligence',desc:'Passenger flow analytics, energy forecasting, queue intelligence models, real-time operational dashboards, and compliance reporting — powered by a configurable unified data layer.',s:'Module'},
+];
+
+function buildProof(){
+  const g=document.getElementById('pgrid');
+  PROOF.forEach(p=>{
+    const c=document.createElement('div');c.className='pcrd';
+    c.innerHTML=`<div class="pcrd-status">${p.s}</div><div class="pcrd-title">${p.title}</div><div class="pcrd-mahb">${p.mahb}</div><div class="pcrd-desc">${p.desc}</div>`;
+    g.appendChild(c);
+  });
+}
+
+const AGENTS=[
+  {icon:'✈',name:'Flight Ops Intelligence Agent',role:'Disruption · Routing · FIDS · ACDM',title:'Flight Operations Intelligence Agent',tag:'DOMAIN: OPERATIONS · BUSINESS VALUE: COST AVOIDANCE + ON-TIME PERFORMANCE',
+   pts:['Autonomous gate re-allocation during disruptions — eliminates manual AOCC coordination','Real-time FIDS synchronisation across all display surfaces with predictive delay flagging','ACDM integration: shares disruption data with airlines, ground handlers, authorities','C-Level KPI: On-time performance uplift, ground handling cost reduction, turnaround savings','Predictive ML models: 72hr flight demand forecasting for resource pre-positioning'],anim:'flight'},
+  {icon:'👤',name:'Passenger Experience Agent',role:'Passenger Flow · Queue Management · Journey Orchestration',title:'Passenger Experience Agent',tag:'DOMAIN: PASSENGER SERVICES · BUSINESS VALUE: NPS UPLIFT + REVENUE CONVERSION',
+   pts:['Personalised home-to-gate journey orchestration based on passenger profile and flight context','Passenger flow forecast — traffic volume predictions per zone, gate, and hour for proactive resourcing','Real-time queue management at security, immigration, and boarding gates with proactive rerouting','C-Level KPI: Net Promoter Score uplift, retail revenue per passenger, complaint volume reduction','Accessibility-aware routing for passengers requiring special assistance'],anim:'passenger'},
+  {icon:'🔒',name:'Aviation Security Agent',role:'Anomaly Detection · Pass Validation',title:'Aviation Security Intelligence Agent',tag:'DOMAIN: SECURITY · BUSINESS VALUE: COMPLIANCE + RISK REDUCTION',
+   pts:['Automated pass validation and anomaly detection across all access control points','Behavioural pattern analysis flagging unusual airside movement for AVSEC review','Digital audit trail for every security event — regulator-ready compliance in seconds','C-Level KPI: Security incident response time, regulatory compliance score, audit cost','Integration with biometric verification systems for next-gen contactless access control'],anim:'security'},
+  {icon:'⚡',name:'Energy & Sustainability Agent',role:'Energy Forecasting · Optimisation · Carbon Reporting',title:'Energy & Sustainability Intelligence Agent',tag:'DOMAIN: SUSTAINABILITY + OPERATIONS · BUSINESS VALUE: COST REDUCTION + REGULATORY READINESS',
+   pts:['Energy forecasting — predicts terminal energy demand 24–72hrs ahead, enabling proactive load management and cost reduction','Energy optimisation — AI-driven recommendations from BMS/EMS data to reduce waste and improve building system efficiency','Carbon reporting — Scope 1, 2, and 3 emissions tracking with automated alignment to GRI, TCFD, and ICAO CORSIA standards','C-Level KPI: Energy cost reduction per year, carbon intensity per passenger, regulatory reporting effort saved','Net-zero pathway modelling — scenario planning and investment prioritisation for sustainability targets'],anim:'esg'},
+  {icon:'📊',name:'Executive Analytics Agent',role:'KPI Dashboards · Forecasting · Board Reports',title:'Executive Analytics & BI Agent',tag:'DOMAIN: INTELLIGENCE · BUSINESS VALUE: DECISION VELOCITY + STRATEGIC INSIGHT',
+   pts:['Unified C-suite dashboard: revenue, ops, passenger NPS, ESG — all in one view','Natural language querying: "What drove the delay spike on Tuesday?" — instant AI answer','Board-ready automated report generation: financial, operational, sustainability narratives','C-Level KPI: Decision-to-action time, forecast accuracy, management reporting cost saved','Anomaly alerting: instant push to C-suite when KPIs breach defined thresholds'],anim:'analytics'},
+  {icon:'🔗',name:'Intelligence Orchestration Agent',role:'Contract Automation · Document Automation · ITSM · Procurement',title:'Intelligence Orchestration Agent',tag:'DOMAIN: INTELLIGENT AUTOMATION · BUSINESS VALUE: COST REDUCTION + CYCLE TIME COMPRESSION',
+   pts:['Coordinates automation flows across agents and business functions — contract, procurement, document, and ITSM workflows in one orchestration layer','Contract automation — end-to-end lifecycle from request through multi-level approval to e-signature and archive','Document automation — generation of regulatory and commercial documents with data extracted from connected source systems','Procurement automation — event extraction, vendor data handling, purchase order and LOA generation','ITSM and trouble ticket automation — service request routing, SLA tracking, and resolution workflow management'],anim:'rpa'},
+];
+
+const ANIM_HTML={
+flight:`<svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto"><defs><style>@keyframes ef1{0%,100%{transform:translate(0,-1px)}50%{transform:translate(2px,1px)}}@keyframes er1{0%{r:4;opacity:.8}100%{r:20;opacity:0}}@keyframes es1{0%{stroke-dashoffset:300}100%{stroke-dashoffset:0}}@keyframes esl{0%{opacity:0;transform:translateY(-4px)}100%{opacity:1;transform:translateY(0)}}</style><marker id="efa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3z" fill="#198038"/></marker></defs><rect width="800" height="200" fill="#f4f4f4"/><rect x="10" y="10" width="308" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="164" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1.5">AIRPORT OPERATIONS MAP</text><rect x="20" y="154" width="288" height="24" rx="2" fill="#f4f4f4" stroke="#e0e3e8" stroke-width=".8"/><rect x="50" y="160" width="22" height="3" rx="1" fill="#c96a00" opacity=".5"/><rect x="94" y="160" width="22" height="3" rx="1" fill="#c96a00" opacity=".5"/><rect x="138" y="160" width="22" height="3" rx="1" fill="#c96a00" opacity=".5"/><rect x="182" y="160" width="22" height="3" rx="1" fill="#c96a00" opacity=".5"/><rect x="226" y="160" width="22" height="3" rx="1" fill="#c96a00" opacity=".5"/><text x="164" y="174" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">RWY 14L/32R</text><rect x="20" y="88" width="288" height="60" rx="2" fill="#f4f4f4" stroke="#e0e3e8"/><rect x="30" y="76" width="268" height="14" rx="2" fill="#f4f4f4" stroke="#e0e3e8"/><rect x="88" y="64" width="152" height="14" rx="2" fill="#f4f4f4" stroke="#e0e3e8"/><text x="164" y="73" text-anchor="middle" font-family="Inter" font-size="7" font-weight="500" fill="#a8b0bd">TERMINAL A</text><rect x="28" y="96" width="28" height="18" rx="3" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8"/><text x="42" y="109" text-anchor="middle" font-family="Inter" font-size="8" font-weight="500" fill="#0f62fe">A01</text><rect x="62" y="96" width="28" height="18" rx="3" fill="#ffd7d9" stroke="#da1e28" stroke-width="1.2"/><text x="76" y="105" text-anchor="middle" font-family="Inter" font-size="7" font-weight="600" fill="#da1e28">A04</text><text x="76" y="113" text-anchor="middle" font-family="Inter" font-size="6" fill="#da1e28">CONFLICT</text><rect x="96" y="96" width="28" height="18" rx="3" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8"/><text x="110" y="109" text-anchor="middle" font-family="Inter" font-size="8" font-weight="500" fill="#0f62fe">B12</text><rect x="130" y="96" width="28" height="18" rx="3" fill="#defbe6" stroke="#198038" stroke-width="1"/><text x="144" y="105" text-anchor="middle" font-family="Inter" font-size="7" font-weight="600" fill="#198038">B14</text><text x="144" y="113" text-anchor="middle" font-family="Inter" font-size="6" fill="#198038">REROUTED</text><rect x="164" y="96" width="28" height="18" rx="3" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8"/><text x="178" y="109" text-anchor="middle" font-family="Inter" font-size="8" font-weight="500" fill="#0f62fe">C03</text><rect x="198" y="96" width="28" height="18" rx="3" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8"/><text x="212" y="109" text-anchor="middle" font-family="Inter" font-size="8" font-weight="500" fill="#0f62fe">C21</text><rect x="232" y="96" width="28" height="18" rx="3" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8"/><text x="246" y="109" text-anchor="middle" font-family="Inter" font-size="8" font-weight="500" fill="#0f62fe">D06</text><rect x="266" y="96" width="28" height="18" rx="3" fill="#fff3e0" stroke="#c96a00" stroke-width=".8"/><text x="280" y="109" text-anchor="middle" font-family="Inter" font-size="8" font-weight="500" fill="#c96a00">D09</text><g style="transform-origin:164px 134px;animation:ef1 3s ease-in-out infinite"><ellipse cx="164" cy="134" rx="36" ry="6" fill="white" stroke="#0f62fe" stroke-width="1.2"/><polygon points="140,134 172,129 172,137 140,140" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8"/><polygon points="164,134 198,127 198,131 164,138" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8"/><polygon points="128,132 140,122 140,134" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8"/><rect x="147" y="139" width="15" height="4" rx="2" fill="white" stroke="#0f62fe" stroke-width=".6"/><rect x="169" y="127" width="13" height="4" rx="2" fill="white" stroke="#0f62fe" stroke-width=".6"/><ellipse cx="198" cy="133" rx="4" ry="3.5" fill="rgba(14,158,142,.2)" stroke="#0e9e8e" stroke-width=".7"/></g><line x1="76" y1="114" x2="144" y2="114" stroke="#198038" stroke-width="1.5" stroke-dasharray="300" marker-end="url(#efa)" style="animation:es1 1.5s .5s ease forwards;stroke-dashoffset:300"/><rect x="326" y="10" width="172" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="412" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1.5">ATC RADAR</text><circle cx="412" cy="108" r="70" fill="none" stroke="#e0e3e8" stroke-width=".8"/><circle cx="412" cy="108" r="48" fill="none" stroke="#e0e3e8" stroke-width=".6"/><circle cx="412" cy="108" r="26" fill="none" stroke="#e0e3e8" stroke-width=".5"/><line x1="342" y1="108" x2="482" y2="108" stroke="#e0e3e8" stroke-width=".5"/><line x1="412" y1="38" x2="412" y2="178" stroke="#e0e3e8" stroke-width=".5"/><line x1="412" y1="108" x2="482" y2="108" stroke="rgba(15,98,254,.3)" stroke-width="1.2" style="transform-origin:412px 108px;animation:orbit 4s linear infinite"/><circle cx="412" cy="108" r="3" fill="#0f62fe"/><circle cx="388" cy="86" r="3" fill="#da1e28" style="animation:livePulse 1.1s infinite"/><circle cx="438" cy="94" r="3" fill="#198038" style="animation:livePulse 1.3s infinite .3s"/><circle cx="428" cy="126" r="3" fill="#c96a00" style="animation:livePulse 1.5s infinite .6s"/><circle cx="412" cy="108" r="4" fill="none" stroke="#0f62fe" stroke-width="1" style="animation:er1 2.5s ease-out infinite"/><circle cx="412" cy="108" r="4" fill="none" stroke="#0f62fe" stroke-width="1" style="animation:er1 2.5s ease-out .85s infinite"/><text x="390" y="83" font-family="Inter" font-size="7" font-weight="500" fill="#da1e28">MH370</text><text x="440" y="92" font-family="Inter" font-size="7" font-weight="500" fill="#198038">AK123</text><text x="430" y="138" font-family="Inter" font-size="7" font-weight="500" fill="#c96a00">OD441</text><rect x="506" y="10" width="284" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="648" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1.5">AI DISPATCH FEED</text><rect x="514" y="34" width="268" height="28" rx="3" fill="#ffd7d9" stroke="#da1e28" stroke-width=".7" style="animation:esl .5s .2s ease both"/><text x="520" y="46" font-family="Inter" font-size="8" font-weight="600" fill="#da1e28">CONFLICT  Gate A04 — OD441 overlap</text><text x="520" y="57" font-family="Inter" font-size="7.5" fill="#525d6e">Turnaround conflict detected · T-18min</text><rect x="514" y="66" width="268" height="28" rx="3" fill="#fff3e0" stroke="#c96a00" stroke-width=".7" style="animation:esl .5s .5s ease both"/><text x="520" y="78" font-family="Inter" font-size="8" font-weight="600" fill="#c96a00">AGENT  Evaluating alternate gates...</text><text x="520" y="89" font-family="Inter" font-size="7.5" fill="#525d6e">Checking: B14 · C03 · D06 availability</text><rect x="514" y="98" width="268" height="28" rx="3" fill="#defbe6" stroke="#198038" stroke-width=".7" style="animation:esl .5s .8s ease both"/><text x="520" y="110" font-family="Inter" font-size="8" font-weight="600" fill="#198038">RESOLVED  OD441 reassigned to Gate B14</text><text x="520" y="121" font-family="Inter" font-size="7.5" fill="#525d6e">ACDM notified · Ground crew re-dispatched</text><rect x="514" y="130" width="268" height="28" rx="3" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".7" style="animation:esl .5s 1.1s ease both"/><text x="520" y="142" font-family="Inter" font-size="8" font-weight="600" fill="#0f62fe">FIDS  All displays updated · App pushed</text><text x="520" y="153" font-family="Inter" font-size="7.5" fill="#525d6e">342 passengers notified · 0 manual actions</text><rect x="514" y="162" width="268" height="22" rx="3" fill="#f4f4f4" stroke="#e0e3e8"/><text x="520" y="172" font-family="Inter" font-size="7" fill="#a8b0bd">Resolution</text><text x="520" y="180" font-family="Inter" font-size="9" font-weight="700" fill="#198038">1.8 sec</text><text x="614" y="172" font-family="Inter" font-size="7" fill="#a8b0bd">Conflicts</text><text x="614" y="180" font-family="Inter" font-size="9" font-weight="700" fill="#c96a00">14 resolved</text><text x="710" y="172" font-family="Inter" font-size="7" fill="#a8b0bd">OTP Gain</text><text x="710" y="180" font-family="Inter" font-size="9" font-weight="700" fill="#0f62fe">+4.2%</text></svg>`,
+
+passenger:`<svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto"><defs><style>@keyframes epw{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}@keyframes epp{0%{r:5;opacity:.7}100%{r:18;opacity:0}}@keyframes epc{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}@keyframes epd{0%{stroke-dashoffset:500}100%{stroke-dashoffset:0}}</style></defs><rect width="800" height="200" fill="#f4f4f4"/><rect x="10" y="10" width="368" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="194" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1.5">PASSENGER JOURNEY MAP</text><rect x="18" y="32" width="66" height="44" rx="3" fill="#f4f4f4" stroke="#e0e3e8"/><text x="51" y="52" text-anchor="middle" font-family="Inter" font-size="8" font-weight="500" fill="#525d6e">CHECK-IN</text><rect x="22" y="57" width="12" height="12" rx="1" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".6"/><rect x="38" y="57" width="12" height="12" rx="1" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".6"/><rect x="54" y="57" width="12" height="12" rx="1" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".6"/><rect x="92" y="32" width="62" height="44" rx="3" fill="#ffd7d9" stroke="#da1e28" stroke-width=".8"/><text x="123" y="52" text-anchor="middle" font-family="Inter" font-size="8" font-weight="500" fill="#da1e28">SECURITY</text><rect x="96" y="58" width="52" height="11" rx="1" fill="white" stroke="#da1e28" stroke-width=".6"/><text x="122" y="66" text-anchor="middle" font-family="Inter" font-size="6.5" fill="#da1e28">SCAN ZONE</text><rect x="162" y="32" width="62" height="44" rx="3" fill="#fff3e0" stroke="#c96a00" stroke-width=".8"/><text x="193" y="46" text-anchor="middle" font-family="Inter" font-size="8" font-weight="500" fill="#c96a00">DUTY FREE</text><text x="193" y="57" text-anchor="middle" font-family="Inter" font-size="8" font-weight="500" fill="#c96a00">RETAIL</text><text x="193" y="69" text-anchor="middle" font-family="Inter" font-size="6.5" fill="#a8b0bd">Geo-alert zone</text><rect x="232" y="32" width="132" height="44" rx="3" fill="#f4f4f4" stroke="#e0e3e8"/><text x="298" y="46" text-anchor="middle" font-family="Inter" font-size="8" font-weight="500" fill="#525d6e">BOARDING GATES</text><rect x="238" y="52" width="22" height="17" rx="2" fill="#e8f0fe" stroke="#0f62fe" stroke-width="1"/><text x="249" y="64" text-anchor="middle" font-family="Inter" font-size="8" font-weight="600" fill="#0f62fe">B7</text><rect x="265" y="52" width="22" height="17" rx="2" fill="#f4f4f4" stroke="#e0e3e8"/><text x="276" y="64" text-anchor="middle" font-family="Inter" font-size="8" fill="#a8b0bd">B8</text><rect x="292" y="52" width="22" height="17" rx="2" fill="#f4f4f4" stroke="#e0e3e8"/><text x="303" y="64" text-anchor="middle" font-family="Inter" font-size="8" fill="#a8b0bd">C1</text><rect x="319" y="52" width="22" height="17" rx="2" fill="#f4f4f4" stroke="#e0e3e8"/><text x="330" y="64" text-anchor="middle" font-family="Inter" font-size="8" fill="#a8b0bd">C2</text><path d="M51,76 H80 L92,53 H154 L162,53 H224 L232,53 H249" stroke="#6929c4" stroke-width="1.8" fill="none" stroke-dasharray="500" style="animation:epd 2s .3s ease forwards;stroke-dashoffset:500"/><g style="transform-origin:40px 100px;animation:epw 1s ease-in-out infinite"><circle cx="40" cy="90" r="5" fill="none" stroke="#0f62fe" stroke-width="1.5"/><line x1="40" y1="95" x2="40" y2="112" stroke="#0f62fe" stroke-width="1.4"/><line x1="40" y1="100" x2="33" y2="107" stroke="#0f62fe" stroke-width="1.1"/><line x1="40" y1="100" x2="47" y2="107" stroke="#0f62fe" stroke-width="1.1"/><line x1="40" y1="112" x2="34" y2="122" stroke="#0f62fe" stroke-width="1.1"/><line x1="40" y1="112" x2="46" y2="122" stroke="#0f62fe" stroke-width="1.1"/><rect x="47" y="104" width="7" height="9" rx="1" fill="none" stroke="#0f62fe" stroke-width=".8"/></g><circle cx="40" cy="104" r="5" fill="none" stroke="#0f62fe" stroke-width=".8" opacity=".5" style="animation:epp 2s ease-out infinite"/><circle cx="40" cy="104" r="5" fill="none" stroke="#0f62fe" stroke-width=".8" opacity=".5" style="animation:epp 2s ease-out .9s infinite"/><text x="18" y="102" font-family="Inter" font-size="7" font-weight="500" fill="#a8b0bd">QUEUE</text><text x="18" y="111" font-family="Inter" font-size="7" fill="#525d6e">Security</text><rect x="60" y="105" width="80" height="6" rx="1" fill="#e0e3e8"/><rect x="60" y="105" width="26" height="6" rx="1" fill="#198038"/><text x="144" y="112" font-family="Inter" font-size="7" font-weight="600" fill="#198038">6 min</text><text x="18" y="124" font-family="Inter" font-size="7" fill="#525d6e">Passport</text><rect x="60" y="118" width="80" height="6" rx="1" fill="#e0e3e8"/><rect x="60" y="118" width="50" height="6" rx="1" fill="#c96a00" opacity=".7"/><text x="144" y="125" font-family="Inter" font-size="7" font-weight="600" fill="#c96a00">11 min</text><rect x="386" y="10" width="404" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="588" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1.5">PERSONALISED ALERTS — PAX #18441</text><rect x="394" y="34" width="190" height="50" rx="3" fill="#fff3e0" stroke="#c96a00" stroke-width=".9" style="animation:epc .5s .3s ease both"/><text x="400" y="46" font-family="Inter" font-size="8" font-weight="600" fill="#c96a00">DUTY FREE OFFER</text><text x="400" y="57" font-family="Inter" font-size="7.5" fill="#525d6e">Changi Spirits — 30% off</text><text x="400" y="67" font-family="Inter" font-size="7.5" fill="#525d6e">Based on past purchase history</text><text x="400" y="77" font-family="Inter" font-size="7" fill="#c96a00">Dwell: 22 min · Gate B7</text><rect x="394" y="90" width="190" height="50" rx="3" fill="#defbe6" stroke="#198038" stroke-width=".9" style="animation:epc .5s .6s ease both"/><text x="400" y="102" font-family="Inter" font-size="8" font-weight="600" fill="#198038">BOARDING OPEN — ROW 14-28</text><text x="400" y="113" font-family="Inter" font-size="7.5" fill="#525d6e">Gate B7 · Now boarding</text><text x="400" y="124" font-family="Inter" font-size="7.5" fill="#525d6e">Walk time from retail: 4 min</text><text x="400" y="134" font-family="Inter" font-size="7" fill="#198038">Priority lane: PRM enabled</text><rect x="394" y="146" width="190" height="32" rx="3" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8" style="animation:epc .5s .9s ease both"/><text x="400" y="158" font-family="Inter" font-size="8" font-weight="600" fill="#0f62fe">WAYFINDING UPDATED</text><text x="400" y="170" font-family="Inter" font-size="7.5" fill="#525d6e">Re-route via Level 2 · Lifts available</text><rect x="592" y="34" width="190" height="148" rx="3" fill="#f4f4f4" stroke="#e0e3e8"/><text x="687" y="50" text-anchor="middle" font-family="Inter" font-size="8" font-weight="600" fill="#a8b0bd">LIVE METRICS</text><rect x="600" y="56" width="174" height="26" rx="2" fill="white" stroke="#198038" stroke-width=".6"/><text x="687" y="67" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#198038">18,441</text><text x="687" y="77" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Passengers profiled today</text><rect x="600" y="86" width="174" height="26" rx="2" fill="white" stroke="#0f62fe" stroke-width=".6"/><text x="687" y="97" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#0f62fe">+8.1 pts</text><text x="687" y="107" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">NPS vs last quarter</text><rect x="600" y="116" width="174" height="26" rx="2" fill="white" stroke="#c96a00" stroke-width=".6"/><text x="687" y="127" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#c96a00">+12.4%</text><text x="687" y="137" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Retail revenue / passenger</text><rect x="600" y="146" width="174" height="26" rx="2" fill="white" stroke="#6929c4" stroke-width=".6"/><text x="687" y="157" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#6929c4">94.2%</text><text x="687" y="167" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">On-time boarding rate</text></svg>`,
+
+security:`<svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto"><defs><style>@keyframes esd{0%{transform:translateY(0)}100%{transform:translateY(66px)}}@keyframes esv{0%{opacity:0;transform:scaleX(.3)}100%{opacity:1;transform:scaleX(1)}}@keyframes esb{0%,100%{opacity:1}50%{opacity:.3}}@keyframes esc2{0%,100%{opacity:.3}50%{opacity:1}}</style></defs><rect width="800" height="200" fill="#f4f4f4"/><rect x="10" y="10" width="130" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="75" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1">ACCESS GATE</text><rect x="22" y="32" width="18" height="128" rx="2" fill="#f4f4f4" stroke="#0f62fe" stroke-width="1"/><rect x="90" y="32" width="18" height="128" rx="2" fill="#f4f4f4" stroke="#0f62fe" stroke-width="1"/><rect x="22" y="92" width="86" height="5" rx="2" fill="#da1e28" opacity=".6" style="animation:esb 1.5s ease-in-out infinite"/><rect x="26" y="42" width="10" height="16" rx="1" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8"/><text x="31" y="53" text-anchor="middle" font-family="Inter" font-size="5.5" fill="#0f62fe">ID</text><circle cx="31" cy="68" r="4.5" fill="#defbe6" stroke="#198038" stroke-width=".8" style="animation:esb 2s ease-in-out infinite"/><circle cx="75" cy="40" r="6" fill="none" stroke="#6929c4" stroke-width="1.2"/><line x1="75" y1="46" x2="75" y2="62" stroke="#6929c4" stroke-width="1.2"/><line x1="75" y1="52" x2="68" y2="58" stroke="#6929c4" stroke-width="1"/><line x1="75" y1="52" x2="82" y2="58" stroke="#6929c4" stroke-width="1"/><line x1="75" y1="62" x2="70" y2="72" stroke="#6929c4" stroke-width="1"/><line x1="75" y1="62" x2="80" y2="72" stroke="#6929c4" stroke-width="1"/><text x="75" y="152" text-anchor="middle" font-family="Inter" font-size="8" font-weight="600" fill="#198038">ACCESS</text><text x="75" y="163" text-anchor="middle" font-family="Inter" font-size="8" font-weight="600" fill="#198038">GRANTED</text><rect x="148" y="10" width="188" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="242" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1">BIOMETRIC SCAN</text><path d="M184,36 h15 M184,36 v15" stroke="#0f62fe" stroke-width="1.5" fill="none" style="animation:esc2 2s ease-in-out infinite"/><path d="M300,36 h-15 M300,36 v15" stroke="#0f62fe" stroke-width="1.5" fill="none" style="animation:esc2 2s ease-in-out infinite"/><path d="M184,154 h15 M184,154 v-15" stroke="#0f62fe" stroke-width="1.5" fill="none" style="animation:esc2 2s ease-in-out infinite"/><path d="M300,154 h-15 M300,154 v-15" stroke="#0f62fe" stroke-width="1.5" fill="none" style="animation:esc2 2s ease-in-out infinite"/><ellipse cx="242" cy="92" rx="34" ry="42" fill="none" stroke="#6929c4" stroke-width="1.2"/><ellipse cx="229" cy="80" rx="6" ry="5" fill="none" stroke="#6929c4" stroke-width=".9"/><circle cx="229" cy="80" r="2" fill="#6929c4" opacity=".7"/><ellipse cx="255" cy="80" rx="6" ry="5" fill="none" stroke="#6929c4" stroke-width=".9"/><circle cx="255" cy="80" r="2" fill="#6929c4" opacity=".7"/><line x1="242" y1="87" x2="242" y2="98" stroke="#6929c4" stroke-width=".8"/><path d="M231,106 Q242,114 253,106" stroke="#6929c4" stroke-width=".8" fill="none"/><circle cx="217" cy="70" r="1.5" fill="#0f62fe" opacity=".5"/><circle cx="267" cy="70" r="1.5" fill="#0f62fe" opacity=".5"/><circle cx="242" cy="60" r="1.5" fill="#0f62fe" opacity=".5"/><circle cx="209" cy="92" r="1.5" fill="#0f62fe" opacity=".5"/><circle cx="275" cy="92" r="1.5" fill="#0f62fe" opacity=".5"/><rect x="184" y="36" width="116" height="2" rx="1" fill="rgba(15,98,254,.6)" style="animation:esd 2s ease-in-out infinite alternate"/><line x1="184" y1="60" x2="300" y2="60" stroke="#e0e3e8" stroke-width=".5" stroke-dasharray="3 3"/><line x1="184" y1="80" x2="300" y2="80" stroke="#e0e3e8" stroke-width=".5" stroke-dasharray="3 3"/><line x1="184" y1="100" x2="300" y2="100" stroke="#e0e3e8" stroke-width=".5" stroke-dasharray="3 3"/><line x1="184" y1="120" x2="300" y2="120" stroke="#e0e3e8" stroke-width=".5" stroke-dasharray="3 3"/><text x="242" y="173" text-anchor="middle" font-family="Inter" font-size="7.5" fill="#a8b0bd">Match Confidence</text><text x="242" y="184" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#198038">99.7%</text><rect x="344" y="10" width="446" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="567" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1">IDENTITY VERIFICATION RESULTS</text><rect x="352" y="32" width="210" height="24" rx="2" fill="#defbe6" stroke="#198038" stroke-width=".9" style="animation:esv .4s .2s ease both;transform-origin:352px 44px"/><text x="358" y="43" font-family="Inter" font-size="8" font-weight="600" fill="#198038">Passport Scan — Verified</text><text x="358" y="52" font-family="Inter" font-size="7" fill="#525d6e">MYS · Expires 2028 · Chip authenticated</text><rect x="352" y="60" width="210" height="24" rx="2" fill="#defbe6" stroke="#198038" stroke-width=".9" style="animation:esv .4s .5s ease both;transform-origin:352px 72px"/><text x="358" y="71" font-family="Inter" font-size="8" font-weight="600" fill="#198038">Biometric Match — 99.7%</text><text x="358" y="80" font-family="Inter" font-size="7" fill="#525d6e">Face · Iris · Fingerprint cross-matched</text><rect x="352" y="88" width="210" height="24" rx="2" fill="#defbe6" stroke="#198038" stroke-width=".9" style="animation:esv .4s .8s ease both;transform-origin:352px 100px"/><text x="358" y="99" font-family="Inter" font-size="8" font-weight="600" fill="#198038">Watch-List Clear — 0 Flags</text><text x="358" y="108" font-family="Inter" font-size="7" fill="#525d6e">INTERPOL · SOCA · Local DB checked</text><rect x="352" y="116" width="210" height="24" rx="2" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8" style="animation:esv .4s 1.1s ease both;transform-origin:352px 128px"/><text x="358" y="127" font-family="Inter" font-size="8" font-weight="600" fill="#0f62fe">Boarding Pass — Valid</text><text x="358" y="136" font-family="Inter" font-size="7" fill="#525d6e">MH 370 · Seat 14A · Gate B7</text><rect x="352" y="144" width="210" height="36" rx="2" fill="#ffd7d9" stroke="#da1e28" stroke-width="1" style="animation:esb 2s ease-in-out infinite"/><text x="358" y="156" font-family="Inter" font-size="8" font-weight="600" fill="#da1e28">ANOMALY: Zone C — Tailgate attempt</text><text x="358" y="166" font-family="Inter" font-size="7" fill="#525d6e">AVSEC dispatched · Audit log #A4471</text><text x="358" y="175" font-family="Inter" font-size="7" fill="#525d6e">Response: 1.2 sec · Camera 14 flagged</text><rect x="570" y="32" width="212" height="148" rx="3" fill="#f4f4f4" stroke="#e0e3e8"/><text x="676" y="48" text-anchor="middle" font-family="Inter" font-size="8" font-weight="600" fill="#a8b0bd">SECURITY KPIs</text><rect x="578" y="54" width="196" height="26" rx="2" fill="white" stroke="#198038" stroke-width=".6"/><text x="676" y="65" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="#198038">1.2 sec</text><text x="676" y="75" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Avg incident response</text><rect x="578" y="84" width="196" height="26" rx="2" fill="white" stroke="#0f62fe" stroke-width=".6"/><text x="676" y="95" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="#0f62fe">99.97%</text><text x="676" y="105" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">ICAO compliance score</text><rect x="578" y="114" width="196" height="26" rx="2" fill="white" stroke="#c96a00" stroke-width=".6"/><text x="676" y="125" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="#c96a00">-64%</text><text x="676" y="135" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Manual audit workload</text><rect x="578" y="144" width="196" height="26" rx="2" fill="white" stroke="#6929c4" stroke-width=".6"/><text x="676" y="155" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="#6929c4">12,847</text><text x="676" y="165" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Passes validated (0 errors)</text></svg>`,
+
+esg:`<svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto"><defs><style>@keyframes eba{0%{transform:scaleY(0);transform-origin:bottom}100%{transform:scaleY(1);transform-origin:bottom}}@keyframes eco2{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-7px);opacity:.9}}@keyframes elg{0%{stroke-dashoffset:400}100%{stroke-dashoffset:0}}@keyframes eks{0%{opacity:0;transform:translateX(10px)}100%{opacity:1;transform:translateX(0)}}</style></defs><rect width="800" height="200" fill="#f4f4f4"/><rect x="10" y="10" width="228" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="124" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1">EMISSIONS SCOPE 1+2+3</text><text x="18" y="43" font-family="Inter" font-size="7.5" fill="#525d6e">Ground Vehicles</text><rect x="112" y="35" width="112" height="9" rx="1" fill="#e0e3e8"/><rect x="112" y="35" width="67" height="9" rx="1" fill="#da1e28" opacity=".5" style="transform-origin:112px 39px;animation:eba .8s .1s ease both"/><text x="228" y="43" text-anchor="end" font-family="Inter" font-size="7.5" font-weight="600" fill="#da1e28">60%</text><text x="18" y="58" font-family="Inter" font-size="7.5" fill="#525d6e">Terminal HVAC</text><rect x="112" y="50" width="112" height="9" rx="1" fill="#e0e3e8"/><rect x="112" y="50" width="39" height="9" rx="1" fill="#c96a00" opacity=".5" style="transform-origin:112px 54px;animation:eba .8s .25s ease both"/><text x="228" y="58" text-anchor="end" font-family="Inter" font-size="7.5" font-weight="600" fill="#c96a00">35%</text><text x="18" y="73" font-family="Inter" font-size="7.5" fill="#525d6e">Lighting</text><rect x="112" y="65" width="112" height="9" rx="1" fill="#e0e3e8"/><rect x="112" y="65" width="22" height="9" rx="1" fill="#0f62fe" opacity=".5" style="transform-origin:112px 69px;animation:eba .8s .4s ease both"/><text x="228" y="73" text-anchor="end" font-family="Inter" font-size="7.5" font-weight="600" fill="#0f62fe">20%</text><text x="18" y="88" font-family="Inter" font-size="7.5" fill="#525d6e">Refrigeration</text><rect x="112" y="80" width="112" height="9" rx="1" fill="#e0e3e8"/><rect x="112" y="80" width="11" height="9" rx="1" fill="#198038" opacity=".5" style="transform-origin:112px 84px;animation:eba .8s .55s ease both"/><text x="228" y="88" text-anchor="end" font-family="Inter" font-size="7.5" font-weight="600" fill="#198038">10%</text><text x="18" y="103" font-family="Inter" font-size="7.5" fill="#525d6e">Cargo Ops</text><rect x="112" y="95" width="112" height="9" rx="1" fill="#e0e3e8"/><rect x="112" y="95" width="28" height="9" rx="1" fill="#6929c4" opacity=".5" style="transform-origin:112px 99px;animation:eba .8s .7s ease both"/><text x="228" y="103" text-anchor="end" font-family="Inter" font-size="7.5" font-weight="600" fill="#6929c4">25%</text><text x="124" y="120" text-anchor="middle" font-family="Inter" font-size="7.5" font-weight="500" fill="#a8b0bd">LIVE GHG SOURCES</text><circle cx="55" cy="150" r="18" fill="rgba(218,30,40,.07)" stroke="#da1e28" stroke-width="1.2" style="animation:eco2 3s ease-in-out infinite"/><text x="55" y="147" text-anchor="middle" font-family="Inter" font-size="8" font-weight="600" fill="#da1e28">CO₂</text><text x="55" y="157" text-anchor="middle" font-family="Inter" font-size="7" fill="#da1e28">2.4t/hr</text><circle cx="104" cy="156" r="12" fill="rgba(201,106,0,.07)" stroke="#c96a00" stroke-width="1" style="animation:eco2 3s ease-in-out infinite .8s"/><text x="104" y="153" text-anchor="middle" font-family="Inter" font-size="7" font-weight="600" fill="#c96a00">NOₓ</text><text x="104" y="163" text-anchor="middle" font-family="Inter" font-size="6.5" fill="#c96a00">0.3t</text><circle cx="150" cy="148" r="9" fill="rgba(105,41,196,.07)" stroke="#6929c4" stroke-width=".9" style="animation:eco2 3s ease-in-out infinite 1.6s"/><text x="150" y="145" text-anchor="middle" font-family="Inter" font-size="7" font-weight="600" fill="#6929c4">CH₄</text><text x="150" y="155" text-anchor="middle" font-family="Inter" font-size="6.5" fill="#6929c4">0.1t</text><circle cx="192" cy="158" r="7" fill="rgba(15,98,254,.07)" stroke="#0f62fe" stroke-width=".8" style="animation:eco2 3s ease-in-out infinite 2.4s"/><text x="192" y="160" text-anchor="middle" font-family="Inter" font-size="6.5" fill="#0f62fe">GHG</text><rect x="246" y="10" width="168" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="330" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1">CARBON INDEX</text><path d="M272,136 A58,58 0 0,1 277,82" stroke="#da1e28" stroke-width="9" fill="none" opacity=".25"/><path d="M277,82 A58,58 0 0,1 330,62" stroke="#c96a00" stroke-width="9" fill="none" opacity=".35"/><path d="M330,62 A58,58 0 0,1 383,82" stroke="#198038" stroke-width="9" fill="none" opacity=".45"/><path d="M383,82 A58,58 0 0,1 388,136" stroke="#0f62fe" stroke-width="9" fill="none" opacity=".3"/><line x1="330" y1="136" x2="294" y2="90" stroke="#21272a" stroke-width="2" stroke-linecap="round"/><circle cx="330" cy="136" r="5" fill="#21272a"/><circle cx="330" cy="136" r="3" fill="white"/><text x="266" y="152" font-family="Inter" font-size="7" font-weight="500" fill="#da1e28">HIGH</text><text x="323" y="60" text-anchor="middle" font-family="Inter" font-size="7" font-weight="500" fill="#c96a00">MED</text><text x="390" y="152" text-anchor="end" font-family="Inter" font-size="7" font-weight="500" fill="#198038">LOW</text><text x="330" y="160" text-anchor="middle" font-family="DM Sans" font-size="17" font-weight="700" fill="#198038">-22%</text><text x="330" y="172" text-anchor="middle" font-family="Inter" font-size="7.5" fill="#a8b0bd">vs 2022 baseline</text><text x="330" y="184" text-anchor="middle" font-family="Inter" font-size="6.5" fill="#a8b0bd">GRI · TCFD · ICAO CORSIA</text><rect x="422" y="10" width="368" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="606" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1">REDUCTION TREND &amp; NET-ZERO</text><rect x="430" y="30" width="190" height="98" rx="2" fill="#f4f4f4" stroke="#e0e3e8" stroke-width=".6"/><line x1="440" y1="46" x2="610" y2="46" stroke="#e0e3e8" stroke-width=".5"/><line x1="440" y1="62" x2="610" y2="62" stroke="#e0e3e8" stroke-width=".5"/><line x1="440" y1="78" x2="610" y2="78" stroke="#e0e3e8" stroke-width=".5"/><line x1="440" y1="94" x2="610" y2="94" stroke="#e0e3e8" stroke-width=".5"/><line x1="440" y1="110" x2="610" y2="110" stroke="#e0e3e8" stroke-width=".5"/><polyline points="440,104 474,94 508,80 542,68 576,56 610,44" stroke="#da1e28" stroke-width="2" fill="none" stroke-dasharray="400" style="animation:elg 2s ease forwards"/><polyline points="440,108 474,98 508,84 542,70 576,52 610,34" stroke="#198038" stroke-width="1.5" fill="none" stroke-dasharray="4 3" opacity=".6"/><text x="440" y="122" font-family="Inter" font-size="7" fill="#a8b0bd">2020</text><text x="508" y="122" font-family="Inter" font-size="7" fill="#a8b0bd">2022</text><text x="576" y="122" font-family="Inter" font-size="7" fill="#a8b0bd">2024</text><line x1="432" y1="130" x2="448" y2="130" stroke="#da1e28" stroke-width="2"/><text x="452" y="133" font-family="Inter" font-size="7" fill="#525d6e">Actual tCO₂e</text><line x1="510" y1="130" x2="526" y2="130" stroke="#198038" stroke-width="1.5" stroke-dasharray="3 2"/><text x="530" y="133" font-family="Inter" font-size="7" fill="#525d6e">Net-Zero target</text><rect x="430" y="140" width="190" height="42" rx="2" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".6"/><text x="436" y="152" font-family="Inter" font-size="7.5" font-weight="600" fill="#0f62fe">AI INSIGHT</text><text x="436" y="163" font-family="Inter" font-size="7" fill="#525d6e">LED zoning switch T2: saves 340 MWh/yr</text><text x="436" y="173" font-family="Inter" font-size="7" fill="#525d6e">0.18 tCO₂e saved · Payback 2.1 years</text><rect x="628" y="30" width="154" height="30" rx="2" fill="#defbe6" stroke="#198038" stroke-width=".7" style="animation:eks .4s .3s ease both"/><text x="705" y="44" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="#198038">-18%</text><text x="705" y="55" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Energy cost reduction</text><rect x="628" y="64" width="154" height="30" rx="2" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".7" style="animation:eks .4s .5s ease both"/><text x="705" y="78" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="#0f62fe">2.4 t/hr</text><text x="705" y="89" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Live CO₂e monitored</text><rect x="628" y="98" width="154" height="30" rx="2" fill="#fff3e0" stroke="#c96a00" stroke-width=".7" style="animation:eks .4s .7s ease both"/><text x="705" y="112" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="#c96a00">2040</text><text x="705" y="123" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Net-zero target year</text><rect x="628" y="132" width="154" height="30" rx="2" fill="#e8daff" stroke="#6929c4" stroke-width=".7" style="animation:eks .4s .9s ease both"/><text x="705" y="146" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="#6929c4">Auto-report</text><text x="705" y="157" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">GRI + TCFD quarterly</text></svg>`,
+
+analytics:`<svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto"><defs><style>@keyframes ela{0%{stroke-dashoffset:400}100%{stroke-dashoffset:0}}@keyframes eka{0%{opacity:0;transform:translateY(5px)}100%{opacity:1;transform:translateY(0)}}@keyframes enl{0%,100%{opacity:1}50%{opacity:.2}}@keyframes eap{0%,100%{opacity:1}50%{opacity:.5}}</style></defs><rect width="800" height="200" fill="#f4f4f4"/><rect x="10" y="10" width="330" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="175" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1">C-SUITE PERFORMANCE DASHBOARD</text><rect x="18" y="32" width="314" height="116" rx="2" fill="#f4f4f4" stroke="#e0e3e8" stroke-width=".6"/><line x1="18" y1="52" x2="332" y2="52" stroke="#e0e3e8" stroke-width=".5"/><line x1="18" y1="72" x2="332" y2="72" stroke="#e0e3e8" stroke-width=".5"/><line x1="18" y1="92" x2="332" y2="92" stroke="#e0e3e8" stroke-width=".5"/><line x1="18" y1="112" x2="332" y2="112" stroke="#e0e3e8" stroke-width=".5"/><line x1="18" y1="132" x2="332" y2="132" stroke="#e0e3e8" stroke-width=".5"/><text x="16" y="54" text-anchor="end" font-family="Inter" font-size="6" fill="#a8b0bd">100</text><text x="16" y="94" text-anchor="end" font-family="Inter" font-size="6" fill="#a8b0bd">75</text><text x="16" y="134" text-anchor="end" font-family="Inter" font-size="6" fill="#a8b0bd">50</text><polyline points="30,130 78,118 126,108 174,94 222,78 270,62 318,46" stroke="#198038" stroke-width="2" fill="none" stroke-dasharray="400" style="animation:ela 2s .2s ease forwards;stroke-dashoffset:400"/><circle cx="318" cy="46" r="3.5" fill="#198038"/><polyline points="30,134 78,126 126,122 174,110 222,100 270,86 318,68" stroke="#0f62fe" stroke-width="2" fill="none" stroke-dasharray="400" style="animation:ela 2.2s .4s ease forwards;stroke-dashoffset:400"/><circle cx="318" cy="68" r="3.5" fill="#0f62fe"/><line x1="126" y1="32" x2="126" y2="148" stroke="#da1e28" stroke-width=".8" stroke-dasharray="3 2" style="animation:eap 2s ease-in-out infinite"/><rect x="64" y="32" width="124" height="17" rx="2" fill="#ffd7d9" stroke="#da1e28" stroke-width=".8"/><text x="126" y="44" text-anchor="middle" font-family="Inter" font-size="7" font-weight="600" fill="#da1e28">Q2 DIP — AI investigated</text><text x="30" y="158" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">JAN</text><text x="78" y="158" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">FEB</text><text x="126" y="158" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">MAR</text><text x="174" y="158" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">APR</text><text x="222" y="158" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">MAY</text><text x="270" y="158" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">JUN</text><text x="318" y="158" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">JUL</text><line x1="22" y1="172" x2="38" y2="172" stroke="#198038" stroke-width="2"/><text x="42" y="175" font-family="Inter" font-size="7" fill="#525d6e">Revenue / PAX</text><line x1="134" y1="172" x2="150" y2="172" stroke="#0f62fe" stroke-width="2"/><text x="154" y="175" font-family="Inter" font-size="7" fill="#525d6e">Passenger NPS</text><rect x="348" y="10" width="200" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="448" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1">LIVE KPI BOARD</text><rect x="356" y="32" width="184" height="32" rx="2" fill="#defbe6" stroke="#198038" stroke-width=".9" style="animation:eka .4s .2s ease both"/><text x="448" y="46" text-anchor="middle" font-family="DM Sans" font-size="15" font-weight="700" fill="#198038">+12.4%</text><text x="448" y="58" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Retail Revenue / Passenger</text><rect x="356" y="68" width="184" height="32" rx="2" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".9" style="animation:eka .4s .4s ease both"/><text x="448" y="82" text-anchor="middle" font-family="DM Sans" font-size="15" font-weight="700" fill="#0f62fe">+8.1 pts</text><text x="448" y="94" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Net Promoter Score</text><rect x="356" y="104" width="184" height="32" rx="2" fill="#fff3e0" stroke="#c96a00" stroke-width=".9" style="animation:eka .4s .6s ease both"/><text x="448" y="118" text-anchor="middle" font-family="DM Sans" font-size="15" font-weight="700" fill="#c96a00">94.2%</text><text x="448" y="130" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">On-Time Performance</text><rect x="356" y="140" width="184" height="32" rx="2" fill="#e8daff" stroke="#6929c4" stroke-width=".9" style="animation:eka .4s .8s ease both"/><text x="448" y="154" text-anchor="middle" font-family="DM Sans" font-size="14" font-weight="700" fill="#6929c4">-22%</text><text x="448" y="166" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Carbon vs baseline (ESG)</text><rect x="556" y="10" width="234" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="673" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1">AI QUERY ENGINE</text><rect x="564" y="32" width="218" height="36" rx="2" fill="#f4f4f4" stroke="#6929c4" stroke-width=".8"/><text x="570" y="45" font-family="Inter" font-size="7.5" fill="#525d6e">What drove the delay spike</text><text x="570" y="57" font-family="Inter" font-size="7.5" fill="#525d6e">on Tuesday at Gate C?</text><text x="782" y="57" text-anchor="end" font-family="Inter" font-size="8" fill="#6929c4" style="animation:enl 1s ease-in-out infinite">|</text><rect x="564" y="72" width="218" height="58" rx="2" fill="#f4f4f4" stroke="#e0e3e8" stroke-width=".6"/><text x="570" y="84" font-family="Inter" font-size="7.5" font-weight="600" fill="#0f62fe">AI: 3 root causes identified</text><text x="570" y="95" font-family="Inter" font-size="7" fill="#525d6e">1. Fuel truck arrived T-4min late</text><text x="570" y="106" font-family="Inter" font-size="7" fill="#525d6e">2. PRM assist not pre-booked</text><text x="570" y="117" font-family="Inter" font-size="7" fill="#525d6e">3. FIDS lag: 6-min update delay</text><text x="570" y="126" font-family="Inter" font-size="6.5" fill="#6929c4">Board report auto-generated · PDF ready</text><text x="570" y="144" font-family="Inter" font-size="7.5" font-weight="500" fill="#a8b0bd">ACTIVE ALERTS</text><rect x="564" y="148" width="218" height="13" rx="1" fill="#ffd7d9" stroke="#da1e28" stroke-width=".6"/><text x="570" y="158" font-family="Inter" font-size="7" fill="#da1e28">NPS drop 2pts — T2 food outlets</text><rect x="564" y="163" width="218" height="13" rx="1" fill="#fff3e0" stroke="#c96a00" stroke-width=".6"/><text x="570" y="173" font-family="Inter" font-size="7" fill="#c96a00">Revenue below forecast — Gate D pier</text><rect x="564" y="178" width="218" height="13" rx="1" fill="#defbe6" stroke="#198038" stroke-width=".6"/><text x="570" y="188" font-family="Inter" font-size="7" fill="#198038">OTP recovered 94.2% — T+6hr</text></svg>`,
+
+rpa:`<svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto"><defs><style>@keyframes epf2{to{stroke-dashoffset:-30}}@keyframes ere2{0%,90%,100%{ry:4}95%{ry:.5}}@keyframes erb2{0%,100%{opacity:1}50%{opacity:.3}}@keyframes egl2{0%,100%{opacity:.5}50%{opacity:1}}@keyframes etr2{0%{opacity:0;transform:translateX(-8px)}100%{opacity:1;transform:translateX(0)}}</style><marker id="rpa-ea2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3z" fill="#c96a00"/></marker><marker id="rpa-eb2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3z" fill="#0f62fe"/></marker><marker id="rpa-ec2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3z" fill="#6929c4"/></marker><marker id="rpa-ed2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3z" fill="#198038"/></marker></defs><rect width="800" height="200" fill="#f4f4f4"/><rect x="10" y="10" width="140" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="80" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1">RPA BOT</text><rect x="46" y="34" width="68" height="50" rx="5" fill="white" stroke="#0f62fe" stroke-width="1.5"/><line x1="80" y1="34" x2="80" y2="22" stroke="#0f62fe" stroke-width="1.2"/><circle cx="80" cy="20" r="3" fill="rgba(15,98,254,.2)" stroke="#0f62fe" stroke-width=".8" style="animation:erb2 1.2s ease-in-out infinite"/><ellipse cx="64" cy="52" rx="8" ry="4" fill="rgba(15,98,254,.1)" stroke="#0f62fe" stroke-width=".8"/><ellipse cx="64" cy="52" rx="5" ry="4" fill="#0f62fe" opacity=".7" style="animation:ere2 4s ease-in-out infinite"/><ellipse cx="96" cy="52" rx="8" ry="4" fill="rgba(15,98,254,.1)" stroke="#0f62fe" stroke-width=".8"/><ellipse cx="96" cy="52" rx="5" ry="4" fill="#0f62fe" opacity=".7" style="animation:ere2 4s ease-in-out infinite .3s"/><rect x="56" y="70" width="48" height="6" rx="2" fill="#e0e3e8"/><rect x="56" y="70" width="24" height="6" rx="2" fill="#198038" opacity=".5" style="animation:egl2 1s ease-in-out infinite"/><rect x="36" y="88" width="88" height="60" rx="4" fill="white" stroke="#0f62fe" stroke-width="1.2"/><rect x="44" y="96" width="72" height="12" rx="2" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".6"/><text x="80" y="105" text-anchor="middle" font-family="Inter" font-size="7" font-weight="600" fill="#0f62fe">PROCESSING</text><circle cx="56" cy="118" r="4.5" fill="#defbe6" stroke="#198038" stroke-width=".8"/><circle cx="80" cy="118" r="4.5" fill="#fff3e0" stroke="#c96a00" stroke-width=".8"/><circle cx="104" cy="118" r="4.5" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8"/><line x1="36" y1="100" x2="24" y2="116" stroke="#0f62fe" stroke-width="1.8" stroke-linecap="round"/><line x1="124" y1="100" x2="136" y2="116" stroke="#0f62fe" stroke-width="1.8" stroke-linecap="round"/><rect x="18" y="116" width="12" height="8" rx="2" fill="white" stroke="#0f62fe" stroke-width="1"/><rect x="130" y="116" width="12" height="8" rx="2" fill="white" stroke="#0f62fe" stroke-width="1"/><line x1="60" y1="148" x2="54" y2="168" stroke="#0f62fe" stroke-width="1.5" stroke-linecap="round"/><line x1="100" y1="148" x2="106" y2="168" stroke="#0f62fe" stroke-width="1.5" stroke-linecap="round"/><rect x="48" y="168" width="14" height="6" rx="2" fill="white" stroke="#0f62fe" stroke-width=".8"/><rect x="98" y="168" width="14" height="6" rx="2" fill="white" stroke="#0f62fe" stroke-width=".8"/><rect x="158" y="10" width="384" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="350" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1">CONTRACT AUTOMATION PIPELINE</text><rect x="168" y="38" width="72" height="42" rx="3" fill="#fff3e0" stroke="#c96a00" stroke-width="1"/><text x="204" y="54" text-anchor="middle" font-family="Inter" font-size="8" font-weight="600" fill="#c96a00">REQUEST</text><text x="204" y="65" text-anchor="middle" font-family="Inter" font-size="7" fill="#525d6e">Procurehere</text><text x="204" y="74" text-anchor="middle" font-family="Inter" font-size="6.5" fill="#a8b0bd">Event ID extracted</text><line x1="240" y1="59" x2="258" y2="59" stroke="#c96a00" stroke-width="1.4" stroke-dasharray="30" style="animation:epf2 1s linear infinite" marker-end="url(#rpa-ea2)"/><rect x="260" y="38" width="72" height="42" rx="3" fill="#e8f0fe" stroke="#0f62fe" stroke-width="1"/><text x="296" y="54" text-anchor="middle" font-family="Inter" font-size="8" font-weight="600" fill="#0f62fe">EXTRACT</text><text x="296" y="65" text-anchor="middle" font-family="Inter" font-size="7" fill="#525d6e">Docs + Vendors</text><text x="296" y="74" text-anchor="middle" font-family="Inter" font-size="6.5" fill="#a8b0bd">Perf Bond calc</text><line x1="332" y1="59" x2="350" y2="59" stroke="#0f62fe" stroke-width="1.4" stroke-dasharray="30" style="animation:epf2 1s .25s linear infinite" marker-end="url(#rpa-eb2)"/><rect x="352" y="38" width="72" height="42" rx="3" fill="#e8daff" stroke="#6929c4" stroke-width="1"/><text x="388" y="54" text-anchor="middle" font-family="Inter" font-size="8" font-weight="600" fill="#6929c4">GENERATE</text><text x="388" y="65" text-anchor="middle" font-family="Inter" font-size="7" fill="#525d6e">LOA / Contract</text><text x="388" y="74" text-anchor="middle" font-family="Inter" font-size="6.5" fill="#a8b0bd">Template applied</text><line x1="424" y1="59" x2="442" y2="59" stroke="#6929c4" stroke-width="1.4" stroke-dasharray="30" style="animation:epf2 1s .5s linear infinite" marker-end="url(#rpa-ec2)"/><rect x="444" y="38" width="88" height="42" rx="3" fill="#defbe6" stroke="#198038" stroke-width="1"/><text x="488" y="52" text-anchor="middle" font-family="Inter" font-size="8" font-weight="600" fill="#198038">E-SIGNED ✓</text><text x="488" y="63" text-anchor="middle" font-family="Inter" font-size="7" fill="#525d6e">DocuSign auto</text><text x="488" y="73" text-anchor="middle" font-family="Inter" font-size="6.5" fill="#a8b0bd">Archive updated</text><rect x="168" y="92" width="366" height="88" rx="2" fill="#f4f4f4" stroke="#e0e3e8" stroke-width=".7"/><text x="351" y="106" text-anchor="middle" font-family="Inter" font-size="8" font-weight="600" fill="#a8b0bd" letter-spacing="1">ACTIVE BOTS — LIVE STATUS</text><text x="176" y="118" font-family="Inter" font-size="7" font-weight="600" fill="#a8b0bd">BOT NAME</text><text x="346" y="118" font-family="Inter" font-size="7" font-weight="600" fill="#a8b0bd">STATUS</text><text x="418" y="118" font-family="Inter" font-size="7" font-weight="600" fill="#a8b0bd">TASKS</text><text x="480" y="118" font-family="Inter" font-size="7" font-weight="600" fill="#a8b0bd">AVG TIME</text><line x1="168" y1="122" x2="534" y2="122" stroke="#e0e3e8" stroke-width=".8"/><rect x="168" y="123" width="366" height="14" rx="1" fill="white" style="animation:etr2 .4s .2s ease both"/><text x="176" y="133" font-family="Inter" font-size="7.5" fill="#21272a">LOA Generator Bot</text><text x="346" y="133" font-family="Inter" font-size="7.5" font-weight="600" fill="#198038">Running</text><text x="418" y="133" font-family="Inter" font-size="7.5" fill="#21272a">284</text><text x="480" y="133" font-family="Inter" font-size="7.5" fill="#525d6e">3.8 min</text><rect x="168" y="138" width="366" height="14" rx="1" fill="white" style="animation:etr2 .4s .4s ease both"/><text x="176" y="148" font-family="Inter" font-size="7.5" fill="#21272a">Perf Bond Calculator</text><text x="346" y="148" font-family="Inter" font-size="7.5" font-weight="600" fill="#198038">Running</text><text x="418" y="148" font-family="Inter" font-size="7.5" fill="#21272a">311</text><text x="480" y="148" font-family="Inter" font-size="7.5" fill="#525d6e">1.2 min</text><rect x="168" y="153" width="366" height="14" rx="1" fill="white" style="animation:etr2 .4s .6s ease both"/><text x="176" y="163" font-family="Inter" font-size="7.5" fill="#21272a">TA Document Bot</text><text x="346" y="163" font-family="Inter" font-size="7.5" font-weight="600" fill="#c96a00">Queued (12)</text><text x="418" y="163" font-family="Inter" font-size="7.5" fill="#21272a">252</text><text x="480" y="163" font-family="Inter" font-size="7.5" fill="#525d6e">5.1 min</text><line x1="168" y1="168" x2="534" y2="168" stroke="#e0e3e8" stroke-width=".6"/><text x="176" y="177" font-family="Inter" font-size="7.5" fill="#a8b0bd">Total tasks today</text><text x="270" y="177" font-family="DM Sans" font-size="12" font-weight="700" fill="#198038">847</text><text x="344" y="177" font-family="Inter" font-size="7.5" fill="#a8b0bd">Manual: 0</text><text x="416" y="177" font-family="Inter" font-size="7.5" fill="#a8b0bd">Saved: ~3 days/task</text><rect x="550" y="10" width="240" height="180" rx="4" fill="white" stroke="#e0e3e8"/><text x="670" y="26" text-anchor="middle" font-family="Inter" font-size="9" font-weight="600" fill="#a8b0bd" letter-spacing="1">AUTOMATION ROI</text><rect x="558" y="32" width="224" height="32" rx="2" fill="#defbe6" stroke="#198038" stroke-width=".8" style="animation:etr2 .4s .2s ease both"/><text x="670" y="46" text-anchor="middle" font-family="DM Sans" font-size="16" font-weight="700" fill="#198038">847</text><text x="670" y="58" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Tasks processed today</text><rect x="558" y="68" width="224" height="32" rx="2" fill="#e8f0fe" stroke="#0f62fe" stroke-width=".8" style="animation:etr2 .4s .4s ease both"/><text x="670" y="82" text-anchor="middle" font-family="DM Sans" font-size="16" font-weight="700" fill="#0f62fe">Zero</text><text x="670" y="94" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Manual interventions</text><rect x="558" y="104" width="224" height="32" rx="2" fill="#fff3e0" stroke="#c96a00" stroke-width=".8" style="animation:etr2 .4s .6s ease both"/><text x="670" y="118" text-anchor="middle" font-family="DM Sans" font-size="13" font-weight="700" fill="#c96a00">3 days → 4 min</text><text x="670" y="130" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Contract cycle compression</text><rect x="558" y="140" width="224" height="32" rx="2" fill="#e8daff" stroke="#6929c4" stroke-width=".8" style="animation:etr2 .4s .8s ease both"/><text x="670" y="154" text-anchor="middle" font-family="DM Sans" font-size="13" font-weight="700" fill="#6929c4">16+ bots</text><text x="670" y="166" text-anchor="middle" font-family="Inter" font-size="7" fill="#a8b0bd">Live in production (reference airport)</text></svg>`
+};
+
+function buildAgents(){
+  const g=document.getElementById('agrid');
+  AGENTS.forEach(a=>{
+    const c=document.createElement('div');c.className='acrd';
+    c.innerHTML=`<div class="a-icon">${a.icon}</div><div class="a-name">${a.name}</div><div class="a-role">${a.role}</div>`;
+    c.addEventListener('click',()=>{
+      document.querySelectorAll('.acrd').forEach(x=>x.classList.remove('selected'));
+      c.classList.add('selected');
+      const d=document.getElementById('agent-detail');d.style.display='block';
+      document.getElementById('ad-title').textContent=a.title;
+      document.getElementById('ad-tag').textContent=a.tag;
+      document.getElementById('ad-anim').innerHTML=a.anim?ANIM_HTML[a.anim]:'';
+      const pts=document.getElementById('ad-pts');pts.innerHTML='';
+      a.pts.forEach(p=>{const li=document.createElement('li');li.textContent=p;pts.appendChild(li);});
+    });
+    g.appendChild(c);
+  });
+}
+
+buildLayers();buildProof();buildAgents();
+setTimeout(()=>{
+  animCount(document.getElementById('c1'),8);
+  animCount(document.getElementById('c2'),6);
+  animCount(document.getElementById('c3'),16,'+');
+  animCount(document.getElementById('c4'),6);
+},300);
+</script>
+</body>
+</html>
